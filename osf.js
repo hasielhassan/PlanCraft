@@ -208,9 +208,7 @@ function generateOSF() {
     // Add project calendar with base and overrides
     osf.snapshot.projects[0].calendar = {
         "base": "global_calendar",
-        "workweek": {
-            "saturday": 8
-        }
+        "workweek": globalCalendar.workweek
     };
 
     // Add global calendar to the main calendar
