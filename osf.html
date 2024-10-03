@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>PlanCraft</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"> 
+<link rel="stylesheet" href="osf.css">
+<script src="osf.js"></script>
+</head>
+<body>
+    <div class="container"> 
+        <div class="form-container">   
+
+            <h1>PlanCraft (an OSF Generator)</h1>
+
+            <h2>Calendar Settings</h2>
+            <button type="button" class="collapsible">Customize Calendar</button>
+            <div class="content">
+                <label for="monday">Monday:</label>
+                <input type="number" id="monday" value="8" min="0" max="24"><br>
+
+                <label for="tuesday">Tuesday:</label>
+                <input type="number" id="tuesday" value="8" min="0" max="24"><br>
+
+                <label for="wednesday">Wednesday:</label>
+                <input type="number" id="wednesday" value="8" min="0" max="24"><br>
+
+                <label for="thursday">Thursday:</label>
+                <input type="number" id="thursday" value="8" min="0" max="24"><br>
+
+                <label for="friday">Friday:</label>
+                <input type="number" id="friday" value="8" min="0" max="24"><br>
+
+                <label for="saturday">Saturday:</label>
+                <input type="number" id="saturday" value="0" min="0" max="24"><br>
+
+                <label for="sunday">Sunday:</label>
+                <input type="number" id="sunday" value="0" min="0" max="24"><br>
+            </div>
+
+            <label for="numEpisodes">Number of Episodes:</label>
+            <input type="number" id="numEpisodes" value="1"><br>
+
+            <label for="shotsPerEpisode">Shots per Episode:</label>
+            <input type="number" id="shotsPerEpisode" value="10"><br>
+
+            <label for="numAssets">Number of Assets:</label>
+            <input type="number" id="numAssets" value="5"><br>
+
+            <h2>Asset Tasks</h2>
+            <button type="button" class="collapsible">Customize Asset Tasks</button>
+            <div class="content">
+                <table id="assetTasksTable">
+                    <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Duration</th>
+                            <th>Dependencies (comma-separated)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <button onclick="addAssetTask()">Add Task</button>
+            </div>
+
+            <h2>Shot Tasks</h2>
+            <button type="button" class="collapsible">Customize Shot Tasks</button>
+            <div class="content">
+                <table id="shotTasksTable">
+                    <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Duration</th>
+                            <th>Dependencies (comma-separated)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <button onclick="addShotTask()">Add Task</button>
+            </div>
+
+            <hr> 
+
+            <button onclick="generateOSF()">Generate OSF</button>
+
+        </div>
+
+        <div class="description">
+            <h2>About this Tool</h2>
+            <p><b>PlanCraft</b> is a "hypotetical" schedule generator helps you create and Open Schedule Format (OSF) JSON file for your projects. 
+            Simply input the project details, task information, and optional calendar settings, and the tool 
+            will generate a downloadable OSF file that you can use for scheduling and planning.</p>
+
+            <p><b>What is Open Schedule Format?</b><br>
+                Open Schedule Format (OSF) is a simple schema for a JSON representation of a schedule data 
+                and information model. It is intended for use in interchanging or archiving a schedule model 
+                and is therefore a descriptive rather than a prescriptive format.<br>
+                <a href="https://help.autodesk.com/view/GENSCHD/ENU/?guid=gs-osf">Open Schedule Format Documentation</a>
+                <br>
+                <br>
+                Its part of Autodesk Flow Generative Scheduling application
+                Flow Generative Scheduling allows you to generate scenarios of a schedule that has been imported 
+                into Flow Generative Scheduling. This means that you first create a schedule elsewhere and do not 
+                create or edit a schedule directly in Flow Generative Scheduling.<br>
+                <a href="https://help.autodesk.com/view/GENSCHD/ENU/?guid=gs-intro">Autodesk Flow Generative Scheduling Documentation</a>
+
+            </p>
+
+            <p><b>Why will I use OSF Generator?</b><br>
+                You can prepare an hipotetical schedule scenario, only based on some asumptions of your project.
+                And play around with as much options as needed without the need to create entities in Flow Production Tracking
+            </p>
+        </div>
+    </div>
+</body>
+</html>

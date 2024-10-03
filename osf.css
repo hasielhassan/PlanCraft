@@ -1,0 +1,109 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(to bottom right, #e0ffff, #cce0ff);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background-color: white;
+    padding: 80px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+    display: flex;
+    width: 80%;
+    height: 80%;
+    max-width: 1200px;
+    margin: 80px 160px;
+}
+
+.form-container {
+    width: 50%;
+    padding-right: 40px;
+}
+
+.description {
+    width: 50%;
+    border-left: 1px solid #ddd; 
+    padding-left: 40px;
+    text-align: justify;
+    line-height: 1.6;
+}
+
+.description h2 {
+    margin-bottom: 10px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+input[type="number"], input[type="text"], textarea {
+    width: 100%; 
+    padding: 10px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+/* Table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+/* Spacing and separators */
+button + button {
+    margin-left: 10px;
+}
+
+h2 {
+    margin-top: 20px;
+}
+
+/* Collapsible form */
+.collapsible {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 10px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+
+.active, .collapsible:hover {
+    background-color: #ccc;
+}
+
+.content {
+    padding: 0 18px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+    background-color: #f1f1f1;
+}
