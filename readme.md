@@ -1,6 +1,16 @@
-# PlanCraft
+<h1 align="center">PlanCraft</h1>
+
+<p align="center">
+    <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/hasielhassan/PlanCraft" />
+    <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/hasielhassan/PlanCraft" />
+    <img alt="License" src="https://img.shields.io/github/license/hasielhassan/PlanCraft" />
+</p>
 
 **PlanCraft** is a simple and intuitive tool that helps you generate Open Schedule Format (OSF) files for your projects. With PlanCraft, you can easily define your project assumptions, tasks, durations, dependencies, and calendar settings to create a comprehensive schedule in OSF format.
+
+![Screenshot](screenshot.png)
+
+[Launch PlanCraft]: osf.html
 
 Open Schedule Format (OSF) is a simple schema for a JSON representation of a schedule data and information model. 
 It is intended for use in interchanging or archiving a schedule model and is therefore a descriptive rather than a prescriptive format.<br>
