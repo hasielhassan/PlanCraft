@@ -10,7 +10,9 @@
 
 ![Screenshot](screenshot.png)
 
-[![Launch PlanCraft]][osf.html]
+![Play](https://gist.github.com/cxmeel/0dbc95191f239b631c3874f4ccf114e2/raw/play.svg)
+
+[![Get it on SERVICE](https://gist.github.com/cxmeel/0dbc95191f239b631c3874f4ccf114e2/raw/play.svg)](https:/hasielhassan.com/PlanCraft/osf.html)
 
 Open Schedule Format (OSF) is a simple schema for a JSON representation of a schedule data and information model. 
 It is intended for use in interchanging or archiving a schedule model and is therefore a descriptive rather than a prescriptive format.<br>
