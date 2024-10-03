@@ -11,7 +11,7 @@
 ![Screenshot](screenshot.png)
 
 <p align="center">
- <a href="osf.html" target="_blank">
+ <a href="https://www.hasielhassan.com/PlanCraft/osf.html" target="_blank">
   <img src="play.svg" />
  </a>
 </p>
