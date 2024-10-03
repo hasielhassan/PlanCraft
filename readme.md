@@ -12,7 +12,7 @@
 
 <p align="center">
  <a href="osf.html" target="_blank">
-  <img src="https://gist.github.com/cxmeel/0dbc95191f239b631c3874f4ccf114e2/raw/play.svg" />
+  <img src="play.svg" />
  </a>
 </p>
 
