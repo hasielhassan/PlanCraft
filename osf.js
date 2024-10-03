@@ -1,11 +1,15 @@
 function addAssetTask() {
     const table = document.getElementById('assetTasksTable').getElementsByTagName('tbody')[0];
     addTaskRow(table, "Asset");
+    // Call the function to adjust height
+    adjustCollapsibleHeight();
 }
 
 function addShotTask() {
     const table = document.getElementById('shotTasksTable').getElementsByTagName('tbody')[0];
     addTaskRow(table, "Shot");
+    // Call the function to adjust height
+    adjustCollapsibleHeight();
 }
 
 function addTaskRow(table, type) {
@@ -17,6 +21,18 @@ function addTaskRow(table, type) {
     nameCell.innerHTML = `<input type="text" class="taskName" placeholder="Task Name" value="Task ${type} ${table.rows.length}">`;
     durationCell.innerHTML = `<input type="number" class="taskDuration" placeholder="Days Duration" value="5">`;
     dependenciesCell.innerHTML = `<input type="text" class="taskDependencies" placeholder="Dependencies (comma-separated)">`;
+}
+
+function adjustCollapsibleHeight() {
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+        if (coll[i].classList.contains("active")) { // Only adjust if the block is expanded
+            var content = coll[i].nextElementSibling;
+            content.style.maxHeight = content.scrollHeight + "px";
+        }
+    }
 }
 
 function generateOSF() {
