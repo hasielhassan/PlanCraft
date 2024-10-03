@@ -89,10 +89,18 @@ function generateOSF() {
     for (let i = 1; i <= numAssets; i++) {
         let assetTasksWithIds = [];
         for (let j = 0; j < assetTasks.length; j++) {
+
+            // Create a mapping of task names to their IDs for dependency resolution
+            const assetTaskNameToId = {};
+            for (let j = 0; j < assetTasks.length; j++) {
+                assetTaskNameToId[assetTasks[j].name] = `asset_${i}_task_${j+1}`;
+            }
+
             let dependencies = assetTasks[j].dependencies.map(dep => {
-                // Ensure dependency refers to a valid task within the same asset
-                const depNum = parseInt(dep.trim().replace('Task Asset ', ''));
-                return depNum > 0 && depNum <= assetTasks.length ? `asset_${i}_task_${depNum}` : "";
+                // Resolve dependency using the task name mapping
+                const depName = dep.trim();
+                // Return empty string if dependency not found
+                return assetTaskNameToId[depName] || ""; 
             }).filter(dep => dep !== ""); // Remove invalid dependencies
 
             assetTasksWithIds.push({
@@ -130,10 +138,18 @@ function generateOSF() {
         for (let j = 1; j <= shotsPerEpisode; j++) {
             let shotTasksWithIds = [];
             for (let k = 0; k < shotTasks.length; k++) {
+
+                // Create a mapping of task names to their IDs for dependency resolution
+                const shotTaskNameToId = {};
+                for (let k = 0; k < shotTasks.length; k++) {
+                    shotTaskNameToId[shotTasks[k].name] = `episode_${i}_shot_${j}_task_${k+1}`;
+                }
+
                 let dependencies = shotTasks[k].dependencies.map(dep => {
-                    // Ensure dependency refers to a valid task within the same shot
-                    const depNum = parseInt(dep.trim().replace('Task Shot ', ''));
-                    return depNum > 0 && depNum <= shotTasks.length ? `episode_${i}_shot_${j}_task_${depNum}` : "";
+                    // Resolve dependency using the task name mapping
+                    const depName = dep.trim();
+                    // Return empty string if dependency not found
+                    return shotTaskNameToId[depName] || ""; 
                 }).filter(dep => dep !== ""); // Remove invalid dependencies
 
                 // Add random asset dependencies
