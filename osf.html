@@ -49,6 +49,9 @@
             <h2>Asset Tasks</h2>
             <button type="button" class="collapsible">Customize Asset Tasks</button>
             <div class="content">
+                <p>Add a task for each asset.</p>
+                <p>Duration is the number of days it takes to complete the task.</p>
+                <p>Dependencies are comma-separated task names that must be completed before this task can be completed.</p>
                 <table id="assetTasksTable">
                     <thead>
                         <tr>
@@ -66,12 +69,19 @@
             <h2>Shot Tasks</h2>
             <button type="button" class="collapsible">Customize Shot Tasks</button>
             <div class="content">
+                <p>Add a task for each shot.</p>
+                <p>Duration is the number of days it takes to complete the task.</p>
+                <p>Dependencies are comma-separated task names that must be completed before this task can be completed.</p>
+                <p>Shot ones are the ones present in the same shot</p>
+                <p>Asset ones are the ones present in assets linked to the shot</p>
+                <p>We randomly link some assets to shots and set proper dependencies</p>
                 <table id="shotTasksTable">
                     <thead>
                         <tr>
                             <th>Task Name</th>
                             <th>Duration</th>
-                            <th>Dependencies (comma-separated)</th>
+                            <th>Shot Dependencies</th>
+                            <th>Asset Dependencies</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -111,6 +121,13 @@
                 You can prepare an hipotetical schedule scenario, only based on some asumptions of your project.
                 And play around with as much options as needed without the need to create entities in Flow Production Tracking
             </p>
+
+            <hr> 
+
+            <p align="right"><b>Goog luck!</b><br>
+                Your friendly roboto coder, <a href="https://www.hasielhassan.com">Hasiel Hassan</a>.
+            </p>
+
         </div>
     </div>
 </body>

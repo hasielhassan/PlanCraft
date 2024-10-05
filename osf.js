@@ -1,26 +1,89 @@
-function addAssetTask() {
+function addAssetTask(name="", duration=5, dependencies=[]) {
     const table = document.getElementById('assetTasksTable').getElementsByTagName('tbody')[0];
-    addTaskRow(table, "Asset");
+    addTaskRow(table, "Asset", name, duration, dependencies);
     // Call the function to adjust height
     adjustCollapsibleHeight();
 }
 
-function addShotTask() {
+function addShotTask(name="", duration=5, dependencies=[], extraDependencies=[]) {
     const table = document.getElementById('shotTasksTable').getElementsByTagName('tbody')[0];
-    addTaskRow(table, "Shot");
+    addTaskRow(table, "Shot", name, duration, dependencies, extraDependencies);
     // Call the function to adjust height
     adjustCollapsibleHeight();
 }
 
-function addTaskRow(table, type) {
+function addTaskRow(table, type, name="", duration=5, dependencies=[], extraDependencies=[]) {
     const row = table.insertRow(-1);
     const nameCell = row.insertCell();
     const durationCell = row.insertCell();
-    const dependenciesCell = row.insertCell();
+    const shotDependenciesCell = row.insertCell();
 
-    nameCell.innerHTML = `<input type="text" class="taskName" placeholder="Task Name" value="Task ${type} ${table.rows.length}">`;
-    durationCell.innerHTML = `<input type="number" class="taskDuration" placeholder="Days Duration" value="5">`;
-    dependenciesCell.innerHTML = `<input type="text" class="taskDependencies" placeholder="Dependencies (comma-separated)">`;
+    if (!name) {
+        name = `Task${type}${table.rows.length}`;
+    }
+
+    if (dependencies.length > 0) {
+        dependencies = dependencies.join(",");
+    } else {
+        dependencies = "";
+    }
+
+    nameCell.innerHTML = `
+        <input 
+            type="text" 
+            class="taskName" 
+            placeholder="Task Name" 
+            value="${name}"
+        >
+    `;
+    durationCell.innerHTML = `
+        <input 
+            type="number" 
+            class="taskDuration" 
+            placeholder="Days Duration" 
+            value="${duration}"
+        >
+    `;
+    shotDependenciesCell.innerHTML = `
+        <input 
+            type="text" 
+            class="taskDependencies" 
+            placeholder="comma,separated" 
+            value="${dependencies}"
+        >
+    `;
+
+    if (type === "Shot") {
+
+        if (extraDependencies.length > 0) {
+            extraDependencies = extraDependencies.join(",");
+        } else {
+            extraDependencies = "";
+        }
+
+        const assetDependenciesCell = row.insertCell();
+        assetDependenciesCell.innerHTML = `
+            <input 
+                type="text" 
+                class="asetTaskDependencies" 
+                placeholder="comma,separated" 
+                value="${extraDependencies}"
+            >
+        `;
+    }
+}
+
+function addDefaultAssetTasks() {
+    addAssetTask("design", 5);
+    addAssetTask("model", 5, ["design"]);
+    addAssetTask("rig", 5, ["model"]);
+    addAssetTask("surface", 5, ["model"]);
+}
+
+function addDefaultShotTasks() {
+    addShotTask("animation", 5, [], ["rig"]);
+    addShotTask("lighting", 5, ["animation"], ["surface"]);
+    addShotTask("comp", 5, ["lighting"]);
 }
 
 function adjustCollapsibleHeight() {
@@ -60,7 +123,8 @@ function generateOSF() {
         shotTasks.push({
             name: row.cells[0].querySelector('.taskName').value,
             duration: parseInt(row.cells[1].querySelector('.taskDuration').value),
-            dependencies: row.cells[2].querySelector('.taskDependencies').value.split(',')
+            dependencies: row.cells[2].querySelector('.taskDependencies').value.split(','),
+            asetTaskDependencies: row.cells[3].querySelector('.asetTaskDependencies').value.split(',')
         });
     }
 
@@ -109,7 +173,7 @@ function generateOSF() {
             // Create a mapping of task names to their IDs for dependency resolution
             const assetTaskNameToId = {};
             for (let j = 0; j < assetTasks.length; j++) {
-                assetTaskNameToId[assetTasks[j].name] = `asset_${i}_task_${j+1}`;
+                assetTaskNameToId[assetTasks[j].name] = `asset_${i}_task_${assetTasks[j].name}`;
             }
 
             let dependencies = assetTasks[j].dependencies.map(dep => {
@@ -120,7 +184,7 @@ function generateOSF() {
             }).filter(dep => dep !== ""); // Remove invalid dependencies
 
             assetTasksWithIds.push({
-                "id": `asset_${i}_task_${j+1}`,
+                "id": `asset_${i}_task_${assetTasks[j].name}`,
                 "name": assetTasks[j].name,
                 "task": {
                     "duration": assetTasks[j].duration,
@@ -158,7 +222,7 @@ function generateOSF() {
                 // Create a mapping of task names to their IDs for dependency resolution
                 const shotTaskNameToId = {};
                 for (let k = 0; k < shotTasks.length; k++) {
-                    shotTaskNameToId[shotTasks[k].name] = `episode_${i}_shot_${j}_task_${k+1}`;
+                    shotTaskNameToId[shotTasks[k].name] = `episode_${i}_shot_${j}_task_${shotTasks[k].name}`;
                 }
 
                 let dependencies = shotTasks[k].dependencies.map(dep => {
@@ -168,22 +232,33 @@ function generateOSF() {
                     return shotTaskNameToId[depName] || ""; 
                 }).filter(dep => dep !== ""); // Remove invalid dependencies
 
-                // Add random asset dependencies
+                // Add asset dependencies based on user input
                 let assetDependencies = [];
-                // Limit to 3 or numAssets, whichever is smaller
-                const numAssetDependencies = Math.min(3, numAssets); 
+                const numAssetDependencies = Math.min(3, numAssets);
                 for (let l = 0; l < numAssetDependencies; l++) {
                     let randomAssetIndex;
                     do {
-                        // Generate random asset index
                         randomAssetIndex = Math.floor(Math.random() * numAssets) + 1;
-                    // Ensure no duplicates
                     } while (assetDependencies.includes(`asset_${randomAssetIndex}`));
-                    assetDependencies.push(`asset_${randomAssetIndex}`);
+
+                    // Get the asset dependencies specified in the UI
+                    const assetDepNames = shotTasks[k].asetTaskDependencies;
+
+                    // Find matching asset tasks
+                    assetDepNames.forEach(depName => {
+                        depName = depName.trim();
+                        for (let m = 0; m < assetTasks.length; m++) {
+                            // Check if the asset task name is the dependency name
+                            if (assetTasks[m].name == depName) {
+                                assetDependencies.push(`asset_${randomAssetIndex}_task_${assetTasks[m].name}`);
+                                break; // Move to the next dependency name once a match is found
+                            }
+                        }
+                    });
                 }
 
                 shotTasksWithIds.push({
-                    "id": `episode_${i}_shot_${j}_task_${k+1}`,
+                    "id": `episode_${i}_shot_${j}_task_${shotTasks[k].name}`,
                     "name": shotTasks[k].name,
                     "task": {
                         "duration": shotTasks[k].duration,
@@ -261,8 +336,8 @@ window.onload = (event) => {
     console.log("page is fully loaded");
 
     // Add initial task rows
-    addAssetTask();
-    addShotTask();
+    addDefaultAssetTasks();
+    addDefaultShotTasks();
 
     // Collapsible form script
     var coll = document.getElementsByClassName("collapsible");
