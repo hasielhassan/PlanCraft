@@ -10,6 +10,15 @@
 <link rel="stylesheet" href="PlanCraft.css">
 <script src="PlanCraft.js"></script>
 </head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F0ZTC6GDXG"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-F0ZTC6GDXG');
+</script>
 <body>
 
     <div class="tab-container">
@@ -21,7 +30,7 @@
             <button class="tab" onclick="openTab('gantt')">Gantt</button>
         </div>
 
-        <div id="generator" class="tab-content">
+        <div id="generator" class="tab-content tab-generator">
 
             <div class="container"> 
 
@@ -149,12 +158,12 @@
                     <p align="right"><b>Goog luck!</b><br>
                         Your friendly roboto coder, <a href="https://www.hasielhassan.com">Hasiel Hassan</a>.
                     </p>
-        
+
                 </div>
             </div>
         </div>
 
-        <div id="gantt" class="tab-content" style="display:none;">
+        <div id="gantt" class="tab-content tab-gantt" style="display:none;">
             <div>
                 <div id="gantt-info" class="horizontal-layout">
                     <div>

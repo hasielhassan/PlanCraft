@@ -10,14 +10,14 @@ body {
 
 .container {
     background-color: white;
-    padding: 90px;
+    padding: 20px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
     display: flex;
     width: 80%;
     height: 80%;
     max-width: 1200px;
-    margin: 50px 160px;
+    margin: 30px 160px;
 }
 
 .horizontal-layout {
@@ -172,7 +172,15 @@ h2 {
 
 .tab-content {
     display: none;
-    padding: 25px 12px;
+    padding: 50px 12px;
     border: 1px solid #ccc;
     border-top: none;
+}
+
+.tab-generator {
+    padding: 50px 12px;
+}
+
+.tab-gantt {
+    padding: 30px 12px;
 }
