@@ -1,141 +1,177 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 <title>PlanCraft</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"> 
+<script src="https://rawcdn.githack.com/DHTMLX/gantt/v8.0.6/codebase/dhtmlxgantt.js"></script>
+<script src="https://raw.githack.com/DHTMLX/dhtmlx-suite-gpl/5.x/dhtmlx.js"></script>
+<link href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css" rel="stylesheet">
 <link rel="stylesheet" href="osf.css">
 <script src="osf.js"></script>
 </head>
 <body>
-    <div class="container"> 
-        <div class="form-container">   
 
-            <h1>PlanCraft (an OSF Generator)</h1>
-
-            <h2>Calendar Settings</h2>
-            <button type="button" class="collapsible">Customize Calendar</button>
-            <div class="content">
-
-                <p>Configure the working hours for each day of the week.</p>
-
-                <label for="monday">Monday:</label>
-                <input type="number" id="monday" value="8" min="0" max="24"><br>
-
-                <label for="tuesday">Tuesday:</label>
-                <input type="number" id="tuesday" value="8" min="0" max="24"><br>
-
-                <label for="wednesday">Wednesday:</label>
-                <input type="number" id="wednesday" value="8" min="0" max="24"><br>
-
-                <label for="thursday">Thursday:</label>
-                <input type="number" id="thursday" value="8" min="0" max="24"><br>
-
-                <label for="friday">Friday:</label>
-                <input type="number" id="friday" value="8" min="0" max="24"><br>
-
-                <label for="saturday">Saturday:</label>
-                <input type="number" id="saturday" value="0" min="0" max="24"><br>
-
-                <label for="sunday">Sunday:</label>
-                <input type="number" id="sunday" value="0" min="0" max="24"><br>
+    <div class="tab-container">
+        <div class="tabs">
+            <div class="title-container">
+                <img src="resources/icon_256.png" alt="PlanCraft Logo"> <h1>PlanCraft</h1>
             </div>
-            
-            <h2>Project Estimates</h2>
-            <label for="numEpisodes">Number of Episodes:</label>
-            <input type="number" id="numEpisodes" value="1"><br>
-
-            <label for="shotsPerEpisode">Shots per Episode:</label>
-            <input type="number" id="shotsPerEpisode" value="10"><br>
-
-            <label for="numAssets">Number of Assets:</label>
-            <input type="number" id="numAssets" value="5"><br>
-
-            <h2>Asset Tasks</h2>
-            <button type="button" class="collapsible">Customize Asset Tasks</button>
-            <div class="content">
-                <p>Add a task for each asset.</p>
-                <p>Duration is the number of days it takes to complete the task.</p>
-                <p>Dependencies are comma-separated task names that must be completed before this task can be completed.</p>
-                <table id="assetTasksTable">
-                    <thead>
-                        <tr>
-                            <th>Task Name</th>
-                            <th>Duration</th>
-                            <th>Dependencies (comma-separated)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-                <button onclick="addAssetTask()">Add Task</button>
-            </div>
-
-            <h2>Shot Tasks</h2>
-            <button type="button" class="collapsible">Customize Shot Tasks</button>
-            <div class="content">
-                <p>Add a task for each shot.</p>
-                <p>Duration is the number of days it takes to complete the task.</p>
-                <p>Dependencies are comma-separated task names that must be completed before this task can be completed.</p>
-                <p>Shot ones are the ones present in the same shot</p>
-                <p>Asset ones are the ones present in assets linked to the shot</p>
-                <p>We randomly link some assets to shots and set proper dependencies</p>
-                <table id="shotTasksTable">
-                    <thead>
-                        <tr>
-                            <th>Task Name</th>
-                            <th>Duration</th>
-                            <th>Shot Dependencies</th>
-                            <th>Asset Dependencies</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-                <button onclick="addShotTask()">Add Task</button>
-            </div>
-
-            <hr> 
-
-            <button onclick="generateOSF()">Generate OSF</button>
-
+            <button class="tab active" onclick="openTab('generator')">Generator</button>
+            <button class="tab" onclick="openTab('gantt')">Gantt</button>
         </div>
 
-        <div class="description">
-            <br>
-            <h2>About this Tool</h2>
-            <p><b>PlanCraft</b> is a "hypotetical" schedule generator helps you create and Open Schedule Format (OSF) JSON file for your projects. 
-            Simply input the project details, task information, and optional calendar settings, and the tool 
-            will generate a downloadable OSF file that you can use for scheduling and planning.</p>
+        <div id="generator" class="tab-content">
 
-            <p><b>What is Open Schedule Format?</b><br>
-                Open Schedule Format (OSF) is a simple schema for a JSON representation of a schedule data 
-                and information model. It is intended for use in interchanging or archiving a schedule model 
-                and is therefore a descriptive rather than a prescriptive format.<br>
-                <a href="https://help.autodesk.com/view/GENSCHD/ENU/?guid=gs-osf">Open Schedule Format Documentation</a>
-                <br>
-                <br>
-                Its part of Autodesk Flow Generative Scheduling application
-                Flow Generative Scheduling allows you to generate scenarios of a schedule that has been imported 
-                into Flow Generative Scheduling. This means that you first create a schedule elsewhere and do not 
-                create or edit a schedule directly in Flow Generative Scheduling.<br>
-                <a href="https://help.autodesk.com/view/GENSCHD/ENU/?guid=gs-intro">Autodesk Flow Generative Scheduling Documentation</a>
+            <div class="container"> 
 
-            </p>
+                <div class="form-container">   
+                    <h1>OSF Generator</h1>
+                    <h2>Calendar Settings</h2>
+                    <button type="button" class="collapsible">Customize Calendar</button>
+                    <div class="content">
+        
+                        <p>Configure the working hours for each day of the week.</p>
+        
+                        <label for="monday">Monday:</label>
+                        <input type="number" id="monday" value="8" min="0" max="24"><br>
+        
+                        <label for="tuesday">Tuesday:</label>
+                        <input type="number" id="tuesday" value="8" min="0" max="24"><br>
+        
+                        <label for="wednesday">Wednesday:</label>
+                        <input type="number" id="wednesday" value="8" min="0" max="24"><br>
+        
+                        <label for="thursday">Thursday:</label>
+                        <input type="number" id="thursday" value="8" min="0" max="24"><br>
+        
+                        <label for="friday">Friday:</label>
+                        <input type="number" id="friday" value="8" min="0" max="24"><br>
+        
+                        <label for="saturday">Saturday:</label>
+                        <input type="number" id="saturday" value="0" min="0" max="24"><br>
+        
+                        <label for="sunday">Sunday:</label>
+                        <input type="number" id="sunday" value="0" min="0" max="24"><br>
+                    </div>
+                    
+                    <h2>Project Estimates</h2>
+                    <label for="numEpisodes">Number of Episodes:</label>
+                    <input type="number" id="numEpisodes" value="1"><br>
+        
+                    <label for="shotsPerEpisode">Shots per Episode:</label>
+                    <input type="number" id="shotsPerEpisode" value="10"><br>
+        
+                    <label for="numAssets">Number of Assets:</label>
+                    <input type="number" id="numAssets" value="5"><br>
+        
+                    <h2>Asset Tasks</h2>
+                    <button type="button" class="collapsible">Customize Asset Tasks</button>
+                    <div class="content">
+                        <p>Add a task for each asset.</p>
+                        <p>Duration is the number of days it takes to complete the task.</p>
+                        <p>Dependencies are comma-separated task names that must be completed before this task can be completed.</p>
+                        <table id="assetTasksTable">
+                            <thead>
+                                <tr>
+                                    <th>Task Name</th>
+                                    <th>Duration</th>
+                                    <th>Dependencies (comma-separated)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <button onclick="addAssetTask()">Add Task</button>
+                    </div>
+        
+                    <h2>Shot Tasks</h2>
+                    <button type="button" class="collapsible">Customize Shot Tasks</button>
+                    <div class="content">
+                        <p>Add a task for each shot.</p>
+                        <p>Duration is the number of days it takes to complete the task.</p>
+                        <p>Dependencies are comma-separated task names that must be completed before this task can be completed.</p>
+                        <p>Shot ones are the ones present in the same shot</p>
+                        <p>Asset ones are the ones present in assets linked to the shot</p>
+                        <p>We randomly link some assets to shots and set proper dependencies</p>
+                        <table id="shotTasksTable">
+                            <thead>
+                                <tr>
+                                    <th>Task Name</th>
+                                    <th>Duration</th>
+                                    <th>Shot Dependencies</th>
+                                    <th>Asset Dependencies</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <button onclick="addShotTask()">Add Task</button>
+                    </div>
+        
+                    <hr> 
+        
+                    <button onclick="generateOSF()">Generate OSF</button>
+        
+                </div>
+        
+                <div class="description">
+                    <br>
+                    <h2>About this Tool</h2>
+                    <p><b>PlanCraft</b> is a "hypotetical" schedule generator helps you create and Open Schedule Format (OSF) JSON file for your projects. 
+                    Simply input the project details, task information, and optional calendar settings, and the tool 
+                    will generate a downloadable OSF file that you can use for scheduling and planning.</p>
+        
+                    <p><b>What is Open Schedule Format?</b><br>
+                        Open Schedule Format (OSF) is a simple schema for a JSON representation of a schedule data 
+                        and information model. It is intended for use in interchanging or archiving a schedule model 
+                        and is therefore a descriptive rather than a prescriptive format.<br>
+                        <a href="https://help.autodesk.com/view/GENSCHD/ENU/?guid=gs-osf">Open Schedule Format Documentation</a>
+                        <br>
+                        <br>
+                        Its part of Autodesk Flow Generative Scheduling application
+                        Flow Generative Scheduling allows you to generate scenarios of a schedule that has been imported 
+                        into Flow Generative Scheduling. This means that you first create a schedule elsewhere and do not 
+                        create or edit a schedule directly in Flow Generative Scheduling.<br>
+                        <a href="https://help.autodesk.com/view/GENSCHD/ENU/?guid=gs-intro">Autodesk Flow Generative Scheduling Documentation</a>
+        
+                    </p>
+        
+                    <p><b>Why will I use OSF Generator?</b><br>
+                        You can prepare an hipotetical schedule scenario, only based on some asumptions of your project.
+                        And play around with as much options as needed without the need to create entities in Flow Production Tracking
+                    </p>
+        
+                    <br>
+        
+                    <hr> 
+        
+                    <p align="right"><b>Goog luck!</b><br>
+                        Your friendly roboto coder, <a href="https://www.hasielhassan.com">Hasiel Hassan</a>.
+                    </p>
+        
+                </div>
+            </div>
+        </div>
 
-            <p><b>Why will I use OSF Generator?</b><br>
-                You can prepare an hipotetical schedule scenario, only based on some asumptions of your project.
-                And play around with as much options as needed without the need to create entities in Flow Production Tracking
-            </p>
-
-            <br>
-
-            <hr> 
-
-            <p align="right"><b>Goog luck!</b><br>
-                Your friendly roboto coder, <a href="https://www.hasielhassan.com">Hasiel Hassan</a>.
-            </p>
-
+        <div id="gantt" class="tab-content" style="display:none;">
+            <div>
+                <div id="gantt-info" class="horizontal-layout">
+                    <div>
+                        <h1>Gantt Viewer</h1>
+                        <p>This is a minimal Gantt Viewer to allow for quick and easy modification and export.</p>
+                    </div>
+                    <div id="gantt_toolbar">
+                        <button id="importOSF">Import OSF</button>
+                        <button id="showHideLinks">Hide Links</button>
+                        <button id="exportPDF">Export PDF</button>
+                        <button id="exportXLS">Export Excel</button>
+                    </div>    
+                </div>
+                <div id="gantt_here" style='width:100%; height:80vh;'></div>
+            </div>
         </div>
     </div>
+
 </body>
 </html>

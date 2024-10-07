@@ -10,14 +10,28 @@ body {
 
 .container {
     background-color: white;
-    padding: 80px;
+    padding: 90px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
     display: flex;
     width: 80%;
     height: 80%;
     max-width: 1200px;
-    margin: 80px 160px;
+    margin: 50px 160px;
+}
+
+.horizontal-layout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+  
+.horizontal-layout > div {
+    width: 100%;
+}
+  
+#toolbar_here {
+text-align: right;
 }
 
 .form-container {
@@ -106,4 +120,59 @@ h2 {
     overflow: hidden;
     transition: max-height 0.2s ease-out;
     background-color: #f1f1f1;
+}
+
+.tab-container {
+    width: 100%; /* Or set a specific width */
+}
+
+.tabs {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #558598;
+    /* Use flexbox for layout */
+    display: flex;
+    /* Vertically center title and buttons */       
+    align-items: center;
+}
+
+.title-container {
+    display: flex;             /* Use flexbox for title and logo */
+    align-items: center;       /* Vertically center title and logo */
+    margin-left: 20px;          /* Add some space to the left */
+}
+  
+.title-container h1 {
+    margin: 0 10px 0 0;         /* Adjust spacing around title */
+}
+  
+.title-container img {
+    height: 30px;              /* Adjust logo height as needed */
+}
+
+.tab {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+.tab:hover {
+    background-color:   
+    #ddd;
+}
+
+.tab.active {
+    background-color: #ccc;
+}
+
+.tab-content {
+    display: none;
+    padding: 25px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
 }
