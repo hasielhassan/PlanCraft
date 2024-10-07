@@ -1,3 +1,18 @@
+
+function openTab(tabName) {
+    var i, tabContent, tabLinks;
+    tabContent = document.getElementsByClassName("tab-content");
+    for (i = 0; i < tabContent.length;   i++) {
+      tabContent[i].style.display = "none";
+    }
+    tabLinks = document.getElementsByClassName("tab");
+    for (i = 0; i < tabLinks.length; i++) {
+      tabLinks[i].className = tabLinks[i].className.replace(" active", "");
+    }
+    document.getElementById(tabName).style.display = "block";
+    this.className += " active"; 
+  }
+
 function addAssetTask(name="", duration=5, dependencies=[]) {
     const table = document.getElementById('assetTasksTable').getElementsByTagName('tbody')[0];
     addTaskRow(table, "Asset", name, duration, dependencies);
@@ -332,6 +347,68 @@ function generateOSF() {
     window.URL.revokeObjectURL(url);
 }
 
+function charactersToNumber(charList) {
+    let numStr = '';
+    for (let i = 0; i < charList.length; i++) {
+      numStr += charList[i].charCodeAt(0);
+    }
+    return parseInt(numStr);
+  }
+
+function extractTasks(activity, tasks, links, parent) {
+
+    console.log(activity);
+
+    const task = {
+      id: activity.id,
+      text: activity.name,
+      start_date: activity.start,
+      end_date: activity.finish,
+      parent: parent, // Set the parent ID
+      open: true   
+    };
+
+    if (activity.dependencies) {
+      // iterate over dependencies and create links
+      console.log("processing dependencies..." + activity.dependencies)
+      for (let i = 0; i < activity.dependencies.length; i++) {
+        const link = {
+            id: activity.id + activity.dependencies[i],
+            source: activity.dependencies[i],
+            target: activity.id,
+            type: 0
+        }
+        links.push(link);
+      }
+    }
+  
+    if (activity.task) {
+      tasks.push(task);
+    } else if (activity.summary) {
+      task.type = gantt.config.types.project; // Set type as project for summary tasks
+      tasks.push(task);
+      activity.summary.forEach(subActivity => {
+        extractTasks(subActivity, tasks, links, activity.id); // Pass current activity ID as parent
+      });
+    }
+
+    console.log(task);
+}
+
+function convertOSFToGantt(osfData) {
+    const tasks = [];
+    const links = [];
+    const projects = osfData.snapshot.projects;
+
+    projects.forEach(project => {
+        project.activities.forEach(activity => {
+            extractTasks(activity, tasks, links, null);
+        });
+    });
+
+    return { data: tasks, links: links};
+}
+
 window.onload = (event) => {
     console.log("page is fully loaded");
 
@@ -354,6 +431,72 @@ window.onload = (event) => {
             } 
         });
     }
+
+    openTab('generator');
+
+    gantt.config.date_format = "%Y-%m-%d";
+    gantt.config.scale_unit = 'month';
+    gantt.config.view_scale = true;
+    gantt.init("gantt_here");
+    
+    gantt.plugins({ 
+        drag_timeline: true,
+        export_api: true,
+        tooltip: true ,
+        marker: true,
+    }); 
+
+    document.getElementById("showHideLinks").addEventListener(
+        "click", function() {
+            gantt.config.show_links = !gantt.config.show_links;
+            gantt.render();
+            this.textContent = gantt.config.show_links ? "Hide links" : "Show links";
+        }
+    )
+
+    document.getElementById("exportPDF").addEventListener(
+        "click", function() {
+            gantt.exportToPDF({
+                name: "gantt.pdf", raw: true,
+            }
+        );
+    });
+
+    document.getElementById("exportXLS").addEventListener(
+        "click", function() {
+            gantt.exportToExcel({
+                name: "gantt.xlsx",
+                visual: "base-colors",
+                cellColors: true,
+            }
+        );
+    });
+
+    document.getElementById('importOSF').addEventListener('click', function() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json'; // Accept only JSON files
+
+        input.onchange = function(e) {
+          const file = e.target.files[0];
+          const reader = new FileReader();
+      
+          reader.onload = function(e) {
+            try {
+              const osfData = JSON.parse(e.target.result);
+              const ganttData = convertOSFToGantt(osfData);
+              gantt.parse(ganttData); // Assuming you have a gantt object initialized
+              gantt.sort("start_date", false);
+              gantt.render();
+            } catch (error) {
+              alert("Error parsing OSF file. Please make sure it's a valid OSF JSON file.");
+              console.error(error);
+            }
+          }
+          reader.readAsText(file);
+        }
+        input.click();
+      });
 
 };
 
