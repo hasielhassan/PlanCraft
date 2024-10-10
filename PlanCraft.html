@@ -21,66 +21,114 @@
 </script>
 <body>
 
-    <div class="tab-container">
-        <div class="tabs">
-            <div class="title-container">
-                <img src="resources/icon_256.png" alt="PlanCraft Logo"> <h1>PlanCraft</h1>
-            </div>
-            <button class="tab active" onclick="openTab('generator')">Generator</button>
-            <button class="tab" onclick="openTab('gantt')">Gantt</button>
-        </div>
+    <div class="topnav">
+        <a class="active" href="#about">
+            <img src="resources/icon_256.png" 
+                 alt="PlanCraft Logo" 
+                 width="24" height="24"
+            >
+            <b>PlanCraft</b>
+        </a>
+        <a href="#generator">Generator</a>
+        <a href="#gantt">Gantt</a>
+        
+    </div>
 
-        <div id="generator" class="tab-content tab-generator">
+    <div class="view" id="about" style="display: block;">
 
-            <div class="container"> 
+        <br>
 
-                <div class="form-container">   
-                    <h1>OSF Generator</h1>
+        <h2>About this Tool</h2>
+        
+        <br>
+        <br>
+
+        <p><b>PlanCraft</b> is a "hypotetical" schedule generator helps you create and Open Schedule Format (OSF) JSON file for your projects. 
+        Simply input the project details, task information, and optional calendar settings, and the tool 
+        will generate a downloadable OSF file that you can use for scheduling and planning.</p>
+
+        <br>
+
+        <p><b>What is Open Schedule Format?</b><br>
+            Open Schedule Format (OSF) is a simple schema for a JSON representation of a schedule data 
+            and information model. It is intended for use in interchanging or archiving a schedule model 
+            and is therefore a descriptive rather than a prescriptive format.<br>
+            <a href="https://help.autodesk.com/view/GENSCHD/ENU/?guid=gs-osf">Open Schedule Format Documentation</a>
+            <br>
+            <br>
+            Its part of Autodesk Flow Generative Scheduling application
+            Flow Generative Scheduling allows you to generate scenarios of a schedule that has been imported 
+            into Flow Generative Scheduling. This means that you first create a schedule elsewhere and do not 
+            create or edit a schedule directly in Flow Generative Scheduling.<br>
+            <a href="https://help.autodesk.com/view/GENSCHD/ENU/?guid=gs-intro">Autodesk Flow Generative Scheduling Documentation</a>
+
+        </p>
+
+        <br>
+
+        <p><b>Why will I use OSF Generator?</b><br>
+            You can prepare an hipotetical schedule scenario, only based on some asumptions of your project.
+            And play around with as much options as needed without the need to create entities in Flow Production Tracking
+        </p>
+
+        <br>
+        <br>
+
+        <hr>
+        
+        <br>
+        <br>
+
+        <p align="right">
+            <h3>Goog luck!</h3>
+            <h3>Your friendly roboto coder, <a href="https://www.hasielhassan.com">Hasiel Hassan</a>.</h3>
+        </p>
+
+        <br>
+        <br>
+
+    </div>
+
+    <div class="view" id="generator"> 
+        <div class="form-container">   
+            <h1>OSF Generator</h1>
+            <div class="row">
+                <div class="column">
                     <h2>Calendar Settings</h2>
                     <button type="button" class="collapsible">Customize Calendar</button>
-                    <div class="content">
-        
+                    <div class="collapsible_content">
+
                         <p>Configure the working hours for each day of the week.</p>
-        
+
                         <label for="monday">Monday:</label>
                         <input type="number" id="monday" value="8" min="0" max="24"><br>
-        
+
                         <label for="tuesday">Tuesday:</label>
                         <input type="number" id="tuesday" value="8" min="0" max="24"><br>
-        
+
                         <label for="wednesday">Wednesday:</label>
                         <input type="number" id="wednesday" value="8" min="0" max="24"><br>
-        
+
                         <label for="thursday">Thursday:</label>
                         <input type="number" id="thursday" value="8" min="0" max="24"><br>
-        
+
                         <label for="friday">Friday:</label>
                         <input type="number" id="friday" value="8" min="0" max="24"><br>
-        
+
                         <label for="saturday">Saturday:</label>
                         <input type="number" id="saturday" value="0" min="0" max="24"><br>
-        
+
                         <label for="sunday">Sunday:</label>
                         <input type="number" id="sunday" value="0" min="0" max="24"><br>
                     </div>
                     
-                    <h2>Project Estimates</h2>
-                    <label for="numEpisodes">Number of Episodes:</label>
-                    <input type="number" id="numEpisodes" value="1"><br>
-        
-                    <label for="shotsPerEpisode">Shots per Episode:</label>
-                    <input type="number" id="shotsPerEpisode" value="10"><br>
-        
-                    <label for="numAssets">Number of Assets:</label>
-                    <input type="number" id="numAssets" value="5"><br>
-        
-                    <h2>Asset Tasks</h2>
-                    <button type="button" class="collapsible">Customize Asset Tasks</button>
-                    <div class="content">
+                    <h2>Environment Asset Tasks</h2>
+                    <button type="button" class="collapsible">Customize Environment Asset Tasks</button>
+                    <div class="collapsible_content">
                         <p>Add a task for each asset.</p>
                         <p>Duration is the number of days it takes to complete the task.</p>
                         <p>Dependencies are comma-separated task names that must be completed before this task can be completed.</p>
-                        <table id="assetTasksTable">
+                        <table id="envAssetTasksTable">
                             <thead>
                                 <tr>
                                     <th>Task Name</th>
@@ -91,19 +139,85 @@
                             <tbody>
                             </tbody>
                         </table>
-                        <button onclick="addAssetTask()">Add Task</button>
+                        <button onclick="addAssetTask('env')">Add Task</button>
                     </div>
-        
-                    <h2>Shot Tasks</h2>
-                    <button type="button" class="collapsible">Customize Shot Tasks</button>
-                    <div class="content">
+
+
+                    <h2>Character Asset Tasks</h2>
+                    <button type="button" class="collapsible">Customize Character Asset Tasks</button>
+                    <div class="collapsible_content">
+                        <p>Add a task for each asset.</p>
+                        <p>Duration is the number of days it takes to complete the task.</p>
+                        <p>Dependencies are comma-separated task names that must be completed before this task can be completed.</p>
+                        <table id="charAssetTasksTable">
+                            <thead>
+                                <tr>
+                                    <th>Task Name</th>
+                                    <th>Duration</th>
+                                    <th>Dependencies (comma-separated)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <button onclick="addAssetTask('char')">Add Task</button>
+                    </div>
+
+
+                    <h2>Prop Asset Tasks</h2>
+                    <button type="button" class="collapsible">Customize Prop Asset Tasks</button>
+                    <div class="collapsible_content">
+                        <p>Add a task for each asset.</p>
+                        <p>Duration is the number of days it takes to complete the task.</p>
+                        <p>Dependencies are comma-separated task names that must be completed before this task can be completed.</p>
+                        <table id="propAssetTasksTable">
+                            <thead>
+                                <tr>
+                                    <th>Task Name</th>
+                                    <th>Duration</th>
+                                    <th>Dependencies (comma-separated)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <button onclick="addAssetTask('prop')">Add Task</button>
+                    </div>
+
+                    <h2>Sequence Tasks</h2>
+                    <button type="button" class="collapsible">Customize Sequence Tasks</button>
+                    <div class="collapsible_content">
+                        <p>Add a task for each Sequence.</p>
+                        <p>Duration is the number of days it takes to complete the task.</p>
+                        <p>Dependencies are comma-separated task names that must be completed before this task can be completed.</p>
+                        <p>Sequence ones are the ones present in the same Sequence</p>
+                        <p>Asset ones are the ones present in assets linked to the Sequence</p>
+                        <p>We randomly link some assets to sequences and set proper dependencies</p>
+                        <table id="sequenceTasksTable">
+                            <thead>
+                                <tr>
+                                    <th>Task Name</th>
+                                    <th>Duration</th>
+                                    <th>Sequence Dependencies</th>
+                                    <th>Asset Dependencies</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <button onclick="addSequenceTask()">Add Task</button>
+                    </div>
+
+                    <h2>Simple Shot Tasks</h2>
+                    <button type="button" class="collapsible">Customize Simple Shot Tasks</button>
+                    <div class="collapsible_content">
                         <p>Add a task for each shot.</p>
                         <p>Duration is the number of days it takes to complete the task.</p>
                         <p>Dependencies are comma-separated task names that must be completed before this task can be completed.</p>
                         <p>Shot ones are the ones present in the same shot</p>
                         <p>Asset ones are the ones present in assets linked to the shot</p>
                         <p>We randomly link some assets to shots and set proper dependencies</p>
-                        <table id="shotTasksTable">
+                        <table id="simpleShotTasksTable">
                             <thead>
                                 <tr>
                                     <th>Task Name</th>
@@ -115,71 +229,84 @@
                             <tbody>
                             </tbody>
                         </table>
-                        <button onclick="addShotTask()">Add Task</button>
+                        <button onclick="addShotTask('simple')">Add Task</button>
                     </div>
-        
-                    <hr> 
-        
-                    <button onclick="generateOSF()">Generate OSF</button>
-        
-                </div>
-        
-                <div class="description">
-                    <br>
-                    <h2>About this Tool</h2>
-                    <p><b>PlanCraft</b> is a "hypotetical" schedule generator helps you create and Open Schedule Format (OSF) JSON file for your projects. 
-                    Simply input the project details, task information, and optional calendar settings, and the tool 
-                    will generate a downloadable OSF file that you can use for scheduling and planning.</p>
-        
-                    <p><b>What is Open Schedule Format?</b><br>
-                        Open Schedule Format (OSF) is a simple schema for a JSON representation of a schedule data 
-                        and information model. It is intended for use in interchanging or archiving a schedule model 
-                        and is therefore a descriptive rather than a prescriptive format.<br>
-                        <a href="https://help.autodesk.com/view/GENSCHD/ENU/?guid=gs-osf">Open Schedule Format Documentation</a>
-                        <br>
-                        <br>
-                        Its part of Autodesk Flow Generative Scheduling application
-                        Flow Generative Scheduling allows you to generate scenarios of a schedule that has been imported 
-                        into Flow Generative Scheduling. This means that you first create a schedule elsewhere and do not 
-                        create or edit a schedule directly in Flow Generative Scheduling.<br>
-                        <a href="https://help.autodesk.com/view/GENSCHD/ENU/?guid=gs-intro">Autodesk Flow Generative Scheduling Documentation</a>
-        
-                    </p>
-        
-                    <p><b>Why will I use OSF Generator?</b><br>
-                        You can prepare an hipotetical schedule scenario, only based on some asumptions of your project.
-                        And play around with as much options as needed without the need to create entities in Flow Production Tracking
-                    </p>
-        
-                    <br>
-        
-                    <hr> 
-        
-                    <p align="right"><b>Goog luck!</b><br>
-                        Your friendly roboto coder, <a href="https://www.hasielhassan.com">Hasiel Hassan</a>.
-                    </p>
 
+                    <h2>Complex Shot Tasks</h2>
+                    <button type="button" class="collapsible">Customize Complex Shot Tasks</button>
+                    <div class="collapsible_content">
+                        <p>Add a task for each shot.</p>
+                        <p>Duration is the number of days it takes to complete the task.</p>
+                        <p>Dependencies are comma-separated task names that must be completed before this task can be completed.</p>
+                        <p>Shot ones are the ones present in the same shot</p>
+                        <p>Asset ones are the ones present in assets linked to the shot</p>
+                        <p>We randomly link some assets to shots and set proper dependencies</p>
+                        <table id="complexShotTasksTable">
+                            <thead>
+                                <tr>
+                                    <th>Task Name</th>
+                                    <th>Duration</th>
+                                    <th>Shot Dependencies</th>
+                                    <th>Asset Dependencies</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <button onclick="addShotTask('complex')">Add Task</button>
+                    </div>
+
+                </div>
+
+                <div class="column">
+                    <h2>Project Estimates</h2>
+                    <label for="numEpisodes">Number of Episodes:</label>
+                    <input type="number" id="numEpisodes" value="1"><br>
+
+                    <label for="sequencesPerEpisode">Number of Sequences per Episode:</label>
+                    <input type="number" id="sequencesPerEpisodes" value="10"><br>
+
+                    <label for="shotsPerEpisode">Shots per Episode:</label>
+                    <input type="number" id="shotsPerEpisode" value="200"><br>
+
+                    <label for="complexShotsPerEpisode">Percentage Complex Shots per Episode:</label>
+                    <div class="percentage-input-wrapper">
+                        <input type="number" id="complexShotsPerEpisode" value="20" min="1" max="100" step="1"><br>
+                    </div>
+
+                    <label for="numEnvAssets">Number of Environment Assets:</label>
+                    <input type="number" id="numEnvAssets" value="5"><br>
+
+                    <label for="numCharAssets">Number of Character Assets:</label>
+                    <input type="number" id="numCharAssets" value="10"><br>
+
+                    <label for="numPropAssets">Number of Prop Assets:</label>
+                    <input type="number" id="numPropAssets" value="20"><br>
                 </div>
             </div>
-        </div>
 
-        <div id="gantt" class="tab-content tab-gantt" style="display:none;">
+
+            <hr> 
+
+            <button onclick="generateOSF()">Generate OSF</button>
+
+        </div>
+    </div>
+
+    <div class="view" id="gantt">
+        <div id="gantt-info" class="horizontal-layout">
             <div>
-                <div id="gantt-info" class="horizontal-layout">
-                    <div>
-                        <h1>Gantt Viewer</h1>
-                        <p>This is a minimal Gantt Viewer to allow for quick and easy modification and export.</p>
-                    </div>
-                    <div id="gantt_toolbar">
-                        <button id="importOSF">Import OSF</button>
-                        <button id="showHideLinks">Hide Links</button>
-                        <button id="exportPDF">Export PDF</button>
-                        <button id="exportXLS">Export Excel</button>
-                    </div>    
-                </div>
-                <div id="gantt_here" style='width:100%; height:80vh;'></div>
+                <h1>Gantt Viewer</h1>
+                <p>This is a minimal Gantt Viewer to allow for quick and easy modification and export.</p>
             </div>
+            <div id="gantt_toolbar">
+                <button id="importOSF">Import OSF</button>
+                <button id="showHideLinks">Hide Links</button>
+                <button id="exportPDF">Export PDF</button>
+                <button id="exportXLS">Export Excel</button>
+            </div>    
         </div>
+        <div id="gantt_here" style='width:100%; height:64vh;'></div>
     </div>
 
 </body>

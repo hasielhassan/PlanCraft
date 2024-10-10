@@ -1,28 +1,35 @@
-
-function openTab(tabName) {
-    var i, tabContent, tabLinks;
-    tabContent = document.getElementsByClassName("tab-content");
-    for (i = 0; i < tabContent.length;   i++) {
-      tabContent[i].style.display = "none";
-    }
-    tabLinks = document.getElementsByClassName("tab");
-    for (i = 0; i < tabLinks.length; i++) {
-      tabLinks[i].className = tabLinks[i].className.replace(" active", "");
-    }
-    document.getElementById(tabName).style.display = "block";
-    this.className += " active"; 
-  }
-
-function addAssetTask(name="", duration=5, dependencies=[]) {
-    const table = document.getElementById('assetTasksTable').getElementsByTagName('tbody')[0];
-    addTaskRow(table, "Asset", name, duration, dependencies);
+function addSequenceTask(name="", duration=5, dependencies=[], extraDependencies=[]) {
+    const table = document.getElementById('sequenceTasksTable').getElementsByTagName('tbody')[0];
+    addTaskRow(table, "Sequence", name, duration, dependencies, extraDependencies);
     // Call the function to adjust height
     adjustCollapsibleHeight();
 }
 
-function addShotTask(name="", duration=5, dependencies=[], extraDependencies=[]) {
-    const table = document.getElementById('shotTasksTable').getElementsByTagName('tbody')[0];
-    addTaskRow(table, "Shot", name, duration, dependencies, extraDependencies);
+function addAssetTask(type="", name="", duration=5, dependencies=[]) {
+
+    if (type === "env") {
+        const table = document.getElementById('envAssetTasksTable').getElementsByTagName('tbody')[0];
+        addTaskRow(table, "Env", name, duration, dependencies);
+    } else if (type === "prop") {   
+        const table = document.getElementById('propAssetTasksTable').getElementsByTagName('tbody')[0];
+        addTaskRow(table, "Prop", name, duration, dependencies);
+    } else if (type === "char") {
+        const table = document.getElementById('charAssetTasksTable').getElementsByTagName('tbody')[0];
+        addTaskRow(table, "Char", name, duration, dependencies);
+    }
+    // Call the function to adjust height
+    adjustCollapsibleHeight();
+}
+
+function addShotTask(type="", name="", duration=5, dependencies=[], extraDependencies=[]) {
+
+    if (type === "simple") {
+        const table = document.getElementById('simpleShotTasksTable').getElementsByTagName('tbody')[0];
+        addTaskRow(table, "SimpleShot", name, duration, dependencies, extraDependencies);
+    } else if (type === "complex") {
+        const table = document.getElementById('complexShotTasksTable').getElementsByTagName('tbody')[0];
+        addTaskRow(table, "ComplexShot", name, duration, dependencies, extraDependencies);
+    }
     // Call the function to adjust height
     adjustCollapsibleHeight();
 }
@@ -67,9 +74,11 @@ function addTaskRow(table, type, name="", duration=5, dependencies=[], extraDepe
             value="${dependencies}"
         >
     `;
-
-    if (type === "Shot") {
-
+    console.log("type: " + type);
+    console.log("extraDependencies: " + extraDependencies);
+    if (["SimpleShot", "ComplexShot", "Sequence"].includes(type)) {
+        console.log("Doing extra dependencies");
+        console.log("extraDependencies: " + extraDependencies.length);
         if (extraDependencies.length > 0) {
             extraDependencies = extraDependencies.join(",");
         } else {
@@ -89,16 +98,39 @@ function addTaskRow(table, type, name="", duration=5, dependencies=[], extraDepe
 }
 
 function addDefaultAssetTasks() {
-    addAssetTask("design", 5);
-    addAssetTask("model", 5, ["design"]);
-    addAssetTask("rig", 5, ["model"]);
-    addAssetTask("surface", 5, ["model"]);
+    // Environment ones
+    addAssetTask("env", "design", 15);
+    addAssetTask("env", "model", 15, ["design"]);
+    addAssetTask("env", "surface", 15, ["model"]);
+
+    addAssetTask("char", "design", 10);
+    addAssetTask("char", "model", 10, ["design"]);
+    addAssetTask("char", "rig", 10, ["model"]);
+    addAssetTask("char", "groom", 10, ["model"]);
+    addAssetTask("char", "surface", 10, ["model", "groom"]);
+    
+    addAssetTask("prop", "design", 5);
+    addAssetTask("prop", "model", 5, ["design"]);
+    addAssetTask("prop", "rig", 5, ["model"]);
+    addAssetTask("prop", "surface", 5, ["model"]);
 }
 
 function addDefaultShotTasks() {
-    addShotTask("animation", 5, [], ["rig"]);
-    addShotTask("lighting", 5, ["animation"], ["surface"]);
-    addShotTask("comp", 5, ["lighting"]);
+    addShotTask("simple", "animation", 5, [], ["rig"]);
+    addShotTask("simple", "simulation", 5, [], ["groom"]);
+    addShotTask("simple", "lighting", 5, ["animation", "simulation"], ["surface"]);
+    addShotTask("simple", "comp", 5, ["lighting"]);
+
+    addShotTask("complex", "animation", 10, [], ["rig"]);
+    addShotTask("complex", "simulation", 10, [], ["groom"]);
+    addShotTask("complex", "fx", 10, ["animation"]);
+    addShotTask("complex", "lighting", 10, ["animation", "simulation", "fx"], ["surface"]);
+    addShotTask("complex", "comp", 10, ["lighting"]);
+}
+
+function addDefaultSequenceTasks() {
+    addSequenceTask("story", 5, [], []);
+    addSequenceTask("layout", 5, ["story"], ["rig", "model"]);
 }
 
 function adjustCollapsibleHeight() {
@@ -353,7 +385,7 @@ function charactersToNumber(charList) {
       numStr += charList[i].charCodeAt(0);
     }
     return parseInt(numStr);
-  }
+}
 
 function extractTasks(activity, tasks, links, parent) {
 
@@ -415,6 +447,7 @@ window.onload = (event) => {
     // Add initial task rows
     addDefaultAssetTasks();
     addDefaultShotTasks();
+    addDefaultSequenceTasks();
 
     // Collapsible form script
     var coll = document.getElementsByClassName("collapsible");
@@ -432,7 +465,7 @@ window.onload = (event) => {
         });
     }
 
-    openTab('generator');
+    //openTab('generator');
 
     gantt.config.date_format = "%Y-%m-%d";
     gantt.config.scale_unit = 'month';
@@ -496,7 +529,33 @@ window.onload = (event) => {
           reader.readAsText(file);
         }
         input.click();
-      });
+    });
+
+    const navLinks = document.querySelectorAll('.topnav a');
+    const views = document.querySelectorAll('.view');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent default link behavior
+
+            // 1. Remove "active" class from all links
+            navLinks.forEach(navLink => {
+                navLink.classList.remove('active');
+            });
+
+            // 2. Add "active" class to the clicked link
+            this.classList.add('active'); 
+
+            // Hide all views
+            views.forEach(view => {
+                view.style.display = 'none';
+            });
+
+            // Show the corresponding view
+            // Get the href attribute (e.g., "#about")
+            const targetId = this.getAttribute('href');
+            const targetView = document.querySelector(targetId); 
+            targetView.style.display = 'block'; 
+        });
+    });
 
 };
-
