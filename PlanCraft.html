@@ -36,35 +36,43 @@
 
     <div class="view" id="about" style="display: block;">
 
-        <br>
+        <h1>About this Tool</h1>
 
-        <h2>About this Tool</h2>
+        <p><b>PlanCraft</b> is an asumptions based schedule generator that helps you create and 
+        Open Schedule Format (OSF) JSON file for your projects.</p>
         
-        <br>
+        <p>Simply input the project details, task information, and optional calendar settings, and the tool 
+           will generate a downloadable OSF file that you can use for scheduling and planning.
+        </p>
+
+        <p>You can then use the OSF file to create a schedule in Flow Generative Scheduling.</p>
+
+        <p>And finally you can also use the PlanCraftGantt Chart to visualize your schedule, 
+           edit it further and export it to PDF or Excel.
+        </p>
+
         <br>
 
-        <p><b>PlanCraft</b> is a "hypotetical" schedule generator helps you create and Open Schedule Format (OSF) JSON file for your projects. 
-        Simply input the project details, task information, and optional calendar settings, and the tool 
-        will generate a downloadable OSF file that you can use for scheduling and planning.</p>
+        <hr>
 
         <br>
 
         <p><b>What is Open Schedule Format?</b><br>
             Open Schedule Format (OSF) is a simple schema for a JSON representation of a schedule data 
-            and information model. It is intended for use in interchanging or archiving a schedule model 
-            and is therefore a descriptive rather than a prescriptive format.<br>
-            <a href="https://help.autodesk.com/view/GENSCHD/ENU/?guid=gs-osf">Open Schedule Format Documentation</a>
-            <br>
-            <br>
-            Its part of Autodesk Flow Generative Scheduling application
+            and information model.
+        </p>
+
+        <p>It is intended for use in interchanging or archiving a schedule model 
+           and is therefore a descriptive rather than a prescriptive format.<br>
+           <a href="https://help.autodesk.com/view/GENSCHD/ENU/?guid=gs-osf">Open Schedule Format Documentation</a>
+        </p>
+        
+        <p>Its part of Autodesk Flow Generative Scheduling application
             Flow Generative Scheduling allows you to generate scenarios of a schedule that has been imported 
             into Flow Generative Scheduling. This means that you first create a schedule elsewhere and do not 
             create or edit a schedule directly in Flow Generative Scheduling.<br>
             <a href="https://help.autodesk.com/view/GENSCHD/ENU/?guid=gs-intro">Autodesk Flow Generative Scheduling Documentation</a>
-
         </p>
-
-        <br>
 
         <p><b>Why will I use OSF Generator?</b><br>
             You can prepare an hipotetical schedule scenario, only based on some asumptions of your project.
@@ -72,11 +80,19 @@
         </p>
 
         <br>
+
+        <hr>
+
+        <br>
+
+        <p><b>Do you have an issue or request?</b><br>
+            Please open an issue at <a href="https://github.com/hasielhassan/PlanCraft/issues">Github PlanCraft Issues</a> with your suggestions.
+        </p>
+
         <br>
 
         <hr>
         
-        <br>
         <br>
 
         <p align="right">
@@ -85,12 +101,11 @@
         </p>
 
         <br>
-        <br>
 
     </div>
 
     <div class="view" id="generator"> 
-        <div class="form-container">   
+        <div class="form-container">
             <h1>OSF Generator</h1>
             <div class="row">
                 <div class="column">
@@ -306,7 +321,7 @@
                 <button id="exportXLS">Export Excel</button>
             </div>    
         </div>
-        <div id="gantt_here" style='width:100%; height:64vh;'></div>
+        <div id="gantt_here" style='width:100%; height:68vh;'></div>
     </div>
 
 </body>
