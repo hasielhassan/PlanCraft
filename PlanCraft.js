@@ -101,6 +101,7 @@ function addDefaultAssetTasks() {
     // Environment ones
     addAssetTask("env", "design", 15);
     addAssetTask("env", "model", 15, ["design"]);
+    addAssetTask("env", "rig", 1, ["model"]);
     addAssetTask("env", "surface", 15, ["model"]);
 
     addAssetTask("char", "design", 10);
@@ -140,136 +141,180 @@ function adjustCollapsibleHeight() {
     for (i = 0; i < coll.length; i++) {
         if (coll[i].classList.contains("active")) { // Only adjust if the block is expanded
             var content = coll[i].nextElementSibling;
-            content.style.maxHeight = content.scrollHeight + "px";
+            content.style.maxHeight = content.scrollHeight + 20 + "px";
         }
     }
 }
 
-function generateOSF() {
-    const numEpisodes = parseInt(document.getElementById("numEpisodes").value);
-    const shotsPerEpisode = parseInt(document.getElementById("shotsPerEpisode").value);
-    const numAssets = parseInt(document.getElementById("numAssets").value);
-
-    // Get Asset tasks
-    const assetTasks = [];
-    const assetTable = document.getElementById('assetTasksTable').getElementsByTagName('tbody')[0];
-    for (let i = 0; i < assetTable.rows.length; i++) {
-        const row = assetTable.rows[i];
-        assetTasks.push({
-            name: row.cells[0].querySelector('.taskName').value,
-            duration: parseInt(row.cells[1].querySelector('.taskDuration').value),
-            dependencies: row.cells[2].querySelector('.taskDependencies').value.split(',')
-        });
+function generateStringList(inputDict) {
+    let stringList = [];
+    for (const string in inputDict) {
+      for (let i = 0; i < inputDict[string]; i++) {
+        stringList.push(string);
+      }
     }
-
-    // Get Shot tasks
-    const shotTasks = [];
-    const shotTable = document.getElementById('shotTasksTable').getElementsByTagName('tbody')[0];
-    for (let i = 0; i < shotTable.rows.length; i++) {
-        const row = shotTable.rows[i];
-        shotTasks.push({
-            name: row.cells[0].querySelector('.taskName').value,
-            duration: parseInt(row.cells[1].querySelector('.taskDuration').value),
-            dependencies: row.cells[2].querySelector('.taskDependencies').value.split(','),
-            asetTaskDependencies: row.cells[3].querySelector('.asetTaskDependencies').value.split(',')
-        });
+  
+    // Shuffle the array
+    for (let i = stringList.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [stringList[i], stringList[j]] = [stringList[j], stringList[i]];
     }
+  
+    return stringList;
+  }
 
-    // Create OSF structure
-    const osf = { 
-        "snapshot": {
-            "description": "Generated OSF",
-            "dayDuration": 28800, 
-            "calendars": [], 
-            "calendar": {},  
-            "resourceClasses": [], 
-            "projects": [
-                {
-                    "id": "project_1",
-                    "name": "Generated Project",
-                    "calendar": {},  
-                    "activities": [] 
-                }
-            ]
-        }
+function getTablesTasks(className) {
+    console.log("Getting tasks from " + className);
+    const tables = document.getElementsByClassName(className);
+    const allTablesTasks = {};
+    for (let i = 0; i < tables.length; i++) {
+        const table = tables[i];
+        console.log(table);
+        const entityType = table.getAttribute('data-entity-type');
+        allTablesTasks[entityType] = [];
+        for (let j = 1; j < table.rows.length; j++) {
+            const row = table.rows[j];
+            console.log(row);
+            allTablesTasks[entityType].push({
+                name: row.cells[0].querySelector('.taskName').value,
+                duration: parseInt(row.cells[1].querySelector('.taskDuration').value),
+                dependencies: row.cells[2].querySelector('.taskDependencies').value.split(','),
+                // Only add extra dependencies for shots and sequences
+                ... ( ["simple-shot", "complex-shot", "simple-sequence"].includes(entityType) && {
+                    extraDependencies: row.cells[3].querySelector('.asetTaskDependencies').value.split(',')
+                })
+            });
+        };
+    };
+    console.log(allTablesTasks);
+    return allTablesTasks
+}
+// Add resources to resourceClasses
+// Keep a global track of added resources
+let resourceClasses = {}; 
+function addResourceClass(taskName) {
+    if (!resourceClasses[taskName]) {
+        const resourceId = `resource_${Object.keys(resourceClasses).length + 1}`;
+        osf.snapshot.resourceClasses.push({
+            "id": resourceId,
+            "name": taskName
+        });
+        resourceClasses[taskName] = resourceId;
+    }
+    return resourceClasses[taskName];
+}
+
+function generateAssetActivities(numEnvAssets, numCharAssets, numPropAssets, assetTasks) {
+
+    let assetActivities = [];
+
+    const assetTypesCounts = {
+        "env": numEnvAssets,
+        "char": numCharAssets,
+        "prop": numPropAssets
     };
 
-    // Add resources to resourceClasses
-    const resourceClasses = {}; // Keep track of added resources
-    function addResourceClass(taskName) {
-        if (!resourceClasses[taskName]) {
-            const resourceId = `resource_${Object.keys(resourceClasses).length + 1}`;
-            osf.snapshot.resourceClasses.push({
-                "id": resourceId,
-                "name": taskName
-            });
-            resourceClasses[taskName] = resourceId;
-        }
-        return resourceClasses[taskName];
-    }
+    for (let x = 0; x < Object.keys(assetTypesCounts).length; x++) {
 
-    assetTasks.forEach(task => addResourceClass(task.name));
-    shotTasks.forEach(task => addResourceClass(task.name));
+        let assetType = Object.keys(assetTypesCounts)[x];
+        let assetTypeTasks = assetTasks[assetType];
+        let assetTypeCount = assetTypesCounts[assetType];
+        let assetTypeActivities = [];
 
-    // Generate asset activities
-    let assetActivities = [];
-    for (let i = 1; i <= numAssets; i++) {
-        let assetTasksWithIds = [];
-        for (let j = 0; j < assetTasks.length; j++) {
-
-            // Create a mapping of task names to their IDs for dependency resolution
-            const assetTaskNameToId = {};
-            for (let j = 0; j < assetTasks.length; j++) {
-                assetTaskNameToId[assetTasks[j].name] = `asset_${i}_task_${assetTasks[j].name}`;
+        for (let i = 0; i < assetTypeCount; i++) {
+            let assetTasksWithIds = [];
+            for (let j = 0; j < assetTypeTasks.length; j++) {
+    
+                // Create a mapping of task names to their IDs for dependency resolution
+                const assetTaskNameToId = {};
+                for (let j = 0; j < assetTypeTasks.length; j++) {
+                    assetTaskNameToId[assetTypeTasks[j].name] = `asset_${assetType}_${i}_task_${assetTypeTasks[j].name}`;
+                }
+    
+                let dependencies = assetTypeTasks[j].dependencies.map(dep => {
+                    // Resolve dependency using the task name mapping
+                    const depName = dep.trim();
+                    // Return empty string if dependency not found
+                    return assetTaskNameToId[depName] || ""; 
+                }).filter(dep => dep !== ""); // Remove invalid dependencies
+    
+                assetTasksWithIds.push({
+                    "id": `asset_${assetType}_${i}_task_${assetTypeTasks[j].name}`,
+                    "name": assetTypeTasks[j].name,
+                    "task": {
+                        "duration": assetTypeTasks[j].duration,
+                        "resources": [
+                            {
+                                "resource": resourceClasses[assetTypeTasks[j].name], 
+                                "units": 1
+                            }
+                        ]
+                    },
+                    "dependencies": dependencies
+                });
             }
-
-            let dependencies = assetTasks[j].dependencies.map(dep => {
-                // Resolve dependency using the task name mapping
-                const depName = dep.trim();
-                // Return empty string if dependency not found
-                return assetTaskNameToId[depName] || ""; 
-            }).filter(dep => dep !== ""); // Remove invalid dependencies
-
-            assetTasksWithIds.push({
-                "id": `asset_${i}_task_${assetTasks[j].name}`,
-                "name": assetTasks[j].name,
-                "task": {
-                    "duration": assetTasks[j].duration,
-                    "resources": [
-                        {
-                            "resource": resourceClasses[assetTasks[j].name], 
-                            "units": 1
-                        }
-                    ]
-                },
-                "dependencies": dependencies
+            assetTypeActivities.push({
+                "id": `asset_${assetType}_${i}`,
+                "name": `Asset ${assetType} ${i}`,
+                "category": "Asset",
+                "summary": assetTasksWithIds
             });
-        }
+        };
+        
         assetActivities.push({
-            "id": `asset_${i}`,
-            "name": `Asset ${i}`,
+            "id": `${assetType}`,
+            "name": `${assetType}`,
             "category": "Asset",
-            "summary": assetTasksWithIds
+            "summary": assetTypeActivities
         });
-    }
-    osf.snapshot.projects[0].activities.push({
-        "id": "assets",
-        "name": "Assets",
-        "summary": assetActivities
-    });
+    };
+    return assetActivities
+}
 
-    // Generate episodes shot activities
+function generateEpisodeActivities(
+    numEpisodes, shotsPerEpisode, complexShotsPerEpisode, shotTypesTasks,
+    numEnvAssets, numCharAssets, numPropAssets, assetTasks
+) {
     let episodeActivities = [];
+
+    // Generate a radom number of complex shots per episode
+    // using the complexShotsPerEpisode input for the whole project
+    // the data will be a dictionary per episode number and the 
+    // value will be the number of complex shots
+    let complexShotsPerEpisodeCounts = {};
+    for (let i = 1; i <= numEpisodes; i++) {
+        complexShotsPerEpisodeCounts[i] = Math.floor(Math.random() * complexShotsPerEpisode) + 1;
+    }
+
     for (let i = 1; i <= numEpisodes; i++) {
         let shotActivities = [];
-        for (let j = 1; j <= shotsPerEpisode; j++) {
+        
+        // Define a list of simple and complex shots for this episode
+        let episodeSimpleShotsCount = shotsPerEpisode - complexShotsPerEpisodeCounts[i];
+        let episodeShotsTypes = generateStringList(
+            {
+                "simple": episodeSimpleShotsCount, 
+                "complex": complexShotsPerEpisodeCounts[i]
+            },
+        );
+
+        for (let j = 1; j <= episodeShotsTypes.length; j++) {
             let shotTasksWithIds = [];
+            let shotType = episodeShotsTypes[j - 1];
+            let shotTasks;
+            console.log(shotType);
+            if (shotType == "complex") {
+                shotTasks = shotTypesTasks["complex-shot"];
+            } else {
+                shotTasks = shotTypesTasks["simple-shot"];
+            };
+            console.log(shotTasks);
             for (let k = 0; k < shotTasks.length; k++) {
 
                 // Create a mapping of task names to their IDs for dependency resolution
                 const shotTaskNameToId = {};
                 for (let k = 0; k < shotTasks.length; k++) {
-                    shotTaskNameToId[shotTasks[k].name] = `episode_${i}_shot_${j}_task_${shotTasks[k].name}`;
+                    shotTaskNameToId[shotTasks[k].name] = `episode_${i}_${shotType}_shot_${j}_task_${shotTasks[k].name}`;
                 }
 
                 let dependencies = shotTasks[k].dependencies.map(dep => {
@@ -281,27 +326,50 @@ function generateOSF() {
 
                 // Add asset dependencies based on user input
                 let assetDependencies = [];
-                const numAssetDependencies = Math.min(3, numAssets);
-                for (let l = 0; l < numAssetDependencies; l++) {
-                    let randomAssetIndex;
-                    do {
-                        randomAssetIndex = Math.floor(Math.random() * numAssets) + 1;
-                    } while (assetDependencies.includes(`asset_${randomAssetIndex}`));
 
-                    // Get the asset dependencies specified in the UI
-                    const assetDepNames = shotTasks[k].asetTaskDependencies;
+                const assetTypesCounts = {
+                    "env": numEnvAssets,
+                    "char": numCharAssets,
+                    "prop": numPropAssets
+                };
+            
+                const assetTypesDependencyCounts = {
+                    "env": 1,
+                    "char": 3,
+                    "prop": 3
+                };
 
-                    // Find matching asset tasks
-                    assetDepNames.forEach(depName => {
-                        depName = depName.trim();
-                        for (let m = 0; m < assetTasks.length; m++) {
-                            // Check if the asset task name is the dependency name
-                            if (assetTasks[m].name == depName) {
-                                assetDependencies.push(`asset_${randomAssetIndex}_task_${assetTasks[m].name}`);
-                                break; // Move to the next dependency name once a match is found
+                for (let x = 0; x < Object.keys(assetTypesCounts).length; x++) {
+            
+                    let assetType = Object.keys(assetTypesCounts)[x];
+                    let assetTypeTasks = assetTasks[assetType];
+                    let assetTypeCount = assetTypesCounts[assetType];
+                    
+                    assetTypesDependencyCounts
+                    let maxAssetCount = assetTypesDependencyCounts[assetType];
+                    const numAssetDependencies = Math.min(maxAssetCount, assetTypeCount);
+                    for (let l = 0; l < numAssetDependencies; l++) {
+                        let randomAssetIndex;
+                        do {
+                            randomAssetIndex = Math.floor(Math.random() * assetTypeCount) + 1;
+                        } while (assetDependencies.includes(`asset_${assetType}_${randomAssetIndex}`));
+
+                        // Get the asset dependencies specified in the UI
+                        console.log(shotTasks[k]);
+                        let assetDepNames = shotTasks[k].extraDependencies;
+                        console.log(assetDepNames);
+                        // Find matching asset tasks
+                        assetDepNames.forEach(depName => {
+                            depName = depName.trim();
+                            for (let m = 0; m < assetTypeTasks.length; m++) {
+                                // Check if the asset task name is the dependency name
+                                if (assetTypeTasks[m].name == depName) {
+                                    assetDependencies.push(`asset_${assetType}_${randomAssetIndex}_task_${assetTypeTasks[m].name}`);
+                                    break; // Move to the next dependency name once a match is found
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
 
                 shotTasksWithIds.push({
@@ -333,7 +401,75 @@ function generateOSF() {
             "category": "Episode",
             "summary": shotActivities
         });
+    };
+    return episodeActivities
+}
+
+function generateOSF() {
+
+    // reset resource classes
+    let resourceClasses = {}; 
+
+    const numEpisodes = parseInt(document.getElementById("numEpisodes").value);
+    const shotsPerEpisode = parseInt(document.getElementById("shotsPerEpisode").value);
+    const complexShotsPerEpisode = parseInt(document.getElementById("complexShotsPerEpisode").value);
+    const numEnvAssets = parseInt(document.getElementById("numEnvAssets").value);
+    const numCharAssets = parseInt(document.getElementById("numCharAssets").value);
+    const numPropAssets = parseInt(document.getElementById("numPropAssets").value);
+
+    // Get Asset tasks
+    const assetTasks = getTablesTasks("assets-tasks-table");
+    // Get Shot tasks
+    const shotTasks = getTablesTasks("shots-tasks-table");
+    // Get Sequence tasks
+    const sequenceTasks = getTablesTasks("sequence-tasks-table");
+
+    // Create OSF structure
+    const osf = { 
+        "snapshot": {
+            "description": "Generated OSF",
+            "dayDuration": 28800, 
+            "calendars": [], 
+            "calendar": {},  
+            "resourceClasses": [], 
+            "projects": [
+                {
+                    "id": "project_1",
+                    "name": "Generated Project",
+                    "calendar": {},  
+                    "activities": [] 
+                }
+            ]
+        }
+    };
+    
+    // Generate the resources from task names for each type of the tables
+    // considering that the tasks objects are dictionaries of types
+    for (let i = 0; i < assetTasks.length; i++) {
+        assetTasks[i].forEach(task => addResourceClass(task.name));
     }
+    for (let i = 0; i < shotTasks.length; i++) {
+        shotTasks[i].forEach(task => addResourceClass(task.name));
+    }
+    for (let i = 0; i < sequenceTasks.length; i++) {
+        sequenceTasks[i].forEach(task => addResourceClass(task.name));
+    }
+
+    // Generate asset activities
+    const assetActivities = generateAssetActivities( 
+        numEnvAssets, numCharAssets, numPropAssets, assetTasks
+    );
+    osf.snapshot.projects[0].activities.push({
+        "id": "assets",
+        "name": "Assets",
+        "summary": assetActivities
+    });
+
+    // Generate episodes shot activities
+    const episodeActivities = generateEpisodeActivities(
+        numEpisodes, shotsPerEpisode, complexShotsPerEpisode, shotTasks,
+        numEnvAssets, numCharAssets, numPropAssets, assetTasks
+    );
     osf.snapshot.projects[0].activities.push({
         "id": "episode_shots",
         "name": "Episode Shots",
@@ -460,7 +596,7 @@ window.onload = (event) => {
             if (content.style.maxHeight){
                 content.style.maxHeight = null;
             } else {
-                content.style.maxHeight = content.scrollHeight + "px";
+                content.style.maxHeight = content.scrollHeight + 20 + "px";
             } 
         });
     }

@@ -143,7 +143,7 @@
                         <p>Add a task for each asset.</p>
                         <p>Duration is the number of days it takes to complete the task.</p>
                         <p>Dependencies are comma-separated task names that must be completed before this task can be completed.</p>
-                        <table id="envAssetTasksTable">
+                        <table id="envAssetTasksTable" class="assets-tasks-table" data-entity-type="env">
                             <thead>
                                 <tr>
                                     <th>Task Name</th>
@@ -164,7 +164,7 @@
                         <p>Add a task for each asset.</p>
                         <p>Duration is the number of days it takes to complete the task.</p>
                         <p>Dependencies are comma-separated task names that must be completed before this task can be completed.</p>
-                        <table id="charAssetTasksTable">
+                        <table id="charAssetTasksTable" class="assets-tasks-table" data-entity-type="char">
                             <thead>
                                 <tr>
                                     <th>Task Name</th>
@@ -185,7 +185,7 @@
                         <p>Add a task for each asset.</p>
                         <p>Duration is the number of days it takes to complete the task.</p>
                         <p>Dependencies are comma-separated task names that must be completed before this task can be completed.</p>
-                        <table id="propAssetTasksTable">
+                        <table id="propAssetTasksTable" class="assets-tasks-table" data-entity-type="prop">
                             <thead>
                                 <tr>
                                     <th>Task Name</th>
@@ -208,7 +208,7 @@
                         <p>Sequence ones are the ones present in the same Sequence</p>
                         <p>Asset ones are the ones present in assets linked to the Sequence</p>
                         <p>We randomly link some assets to sequences and set proper dependencies</p>
-                        <table id="sequenceTasksTable">
+                        <table id="sequenceTasksTable" class="sequence-tasks-table" data-entity-type="simple-sequence">
                             <thead>
                                 <tr>
                                     <th>Task Name</th>
@@ -232,7 +232,7 @@
                         <p>Shot ones are the ones present in the same shot</p>
                         <p>Asset ones are the ones present in assets linked to the shot</p>
                         <p>We randomly link some assets to shots and set proper dependencies</p>
-                        <table id="simpleShotTasksTable">
+                        <table id="simpleShotTasksTable" class="shots-tasks-table" data-entity-type="simple-shot">
                             <thead>
                                 <tr>
                                     <th>Task Name</th>
@@ -256,7 +256,7 @@
                         <p>Shot ones are the ones present in the same shot</p>
                         <p>Asset ones are the ones present in assets linked to the shot</p>
                         <p>We randomly link some assets to shots and set proper dependencies</p>
-                        <table id="complexShotTasksTable">
+                        <table id="complexShotTasksTable" class="shots-tasks-table" data-entity-type="complex-shot">
                             <thead>
                                 <tr>
                                     <th>Task Name</th>
