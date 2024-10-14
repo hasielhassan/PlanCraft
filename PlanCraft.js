@@ -258,6 +258,8 @@ function generateAssetActivities(osf, numEnvAssets, numCharAssets, numPropAssets
         "prop": numPropAssets
     };
 
+    console.log(assetTypesCounts);
+
     for (let x = 0; x < Object.keys(assetTypesCounts).length; x++) {
 
         let assetType = Object.keys(assetTypesCounts)[x];
@@ -265,14 +267,17 @@ function generateAssetActivities(osf, numEnvAssets, numCharAssets, numPropAssets
         let assetTypeCount = assetTypesCounts[assetType];
         let assetTypeActivities = [];
 
-        for (let i = 0; i < assetTypeCount; i++) {
+        console.log(assetType);
+        console.log(assetTypeCount);
+
+        for (let assetNum = 1; assetNum <= assetTypeCount; assetNum++) {
             let assetTasksWithIds = [];
             for (let j = 0; j < assetTypeTasks.length; j++) {
     
                 // Create a mapping of task names to their IDs for dependency resolution
                 const assetTaskNameToId = {};
                 for (let j = 0; j < assetTypeTasks.length; j++) {
-                    assetTaskNameToId[assetTypeTasks[j].name] = `asset_${assetType}_${i}_task_${assetTypeTasks[j].name}`;
+                    assetTaskNameToId[assetTypeTasks[j].name] = `asset_${assetType}_${assetNum}_task_${assetTypeTasks[j].name}`;
                 }
     
                 let dependencies = assetTypeTasks[j].dependencies.map(dep => {
@@ -283,7 +288,7 @@ function generateAssetActivities(osf, numEnvAssets, numCharAssets, numPropAssets
                 }).filter(dep => dep !== ""); // Remove invalid dependencies
     
                 assetTasksWithIds.push({
-                    "id": `asset_${assetType}_${i}_task_${assetTypeTasks[j].name}`,
+                    "id": `asset_${assetType}_${assetNum}_task_${assetTypeTasks[j].name}`,
                     "name": assetTypeTasks[j].name,
                     "task": {
                         "duration": assetTypeTasks[j].duration,
@@ -298,8 +303,8 @@ function generateAssetActivities(osf, numEnvAssets, numCharAssets, numPropAssets
                 });
             }
             assetTypeActivities.push({
-                "id": `asset_${assetType}_${i}`,
-                "name": `Asset ${assetType} ${i}`,
+                "id": `asset_${assetType}_${assetNum}`,
+                "name": `Asset ${assetType} ${assetNum}`,
                 "category": "Asset",
                 "summary": assetTasksWithIds
             });
@@ -331,14 +336,14 @@ function generateEpisodeActivities(
         complexShotsPerEpisodeCounts[i] = Math.floor(Math.random() * complexShotsPerEpisode) + 1;
     }
 
-    for (let i = 1; i <= numEpisodes; i++) {
+    for (let epiNum = 1; epiNum <= numEpisodes; epiNum++) {
         
         // Define a list of simple and complex shots for this episode
-        let episodeSimpleShotsCount = shotsPerEpisode - complexShotsPerEpisodeCounts[i];
+        let episodeSimpleShotsCount = shotsPerEpisode - complexShotsPerEpisodeCounts[epiNum];
         let episodeShotsTypes = generateStringList(
             {
                 "simple": episodeSimpleShotsCount, 
-                "complex": complexShotsPerEpisodeCounts[i]
+                "complex": complexShotsPerEpisodeCounts[epiNum]
             },
         );
 
@@ -347,7 +352,7 @@ function generateEpisodeActivities(
         // Make a list of sequences with the same number of shots but with random
         // assignment of simple and complex shots
         let sequences = [];
-        for (let j = 1; j <= sequencesPerEpisode; j++) {
+        for (let j = 1; j <= sequencesPerEpisode +1; j++) {
             sequences.push("Sequence " + j);
         }
         console.log(sequences);
@@ -357,15 +362,15 @@ function generateEpisodeActivities(
         let sequenceActivities = [];
 
         // iterate over the sequencesAndShots dictionary
-        for (let j = 0; j < Object.keys(sequencesAndShots).length; j++) {
-            let sequence = Object.keys(sequencesAndShots)[j];
+        for (let seqNum = 1; seqNum < Object.keys(sequencesAndShots).length; seqNum++) {
+            let sequence = Object.keys(sequencesAndShots)[seqNum-1];
             let sequenceShotsTypes = sequencesAndShots[sequence];
 
             let shotActivities = [];
 
-            for (let j = 1; j <= sequenceShotsTypes.length; j++) {
+            for (let shtNum = 1; shtNum <= sequenceShotsTypes.length; shtNum++) {
                 let shotTasksWithIds = [];
-                let shotType = sequenceShotsTypes[j - 1];
+                let shotType = sequenceShotsTypes[shtNum - 1];
                 let shotTasks;
                 console.log(shotType);
                 if (shotType == "complex") {
@@ -374,15 +379,15 @@ function generateEpisodeActivities(
                     shotTasks = shotTypesTasks["simple-shot"];
                 };
                 console.log(shotTasks);
-                for (let k = 0; k < shotTasks.length; k++) {
+                for (let tskIndex = 0; tskIndex < shotTasks.length; tskIndex++) {
 
                     // Create a mapping of task names to their IDs for dependency resolution
                     const shotTaskNameToId = {};
-                    for (let k = 0; k < shotTasks.length; k++) {
-                        shotTaskNameToId[shotTasks[k].name] = `episode_${i}_${shotType}_shot_${j}_task_${shotTasks[k].name}`;
+                    for (let m = 0; m < shotTasks.length; m++) {
+                        shotTaskNameToId[shotTasks[m].name] = `episode_${epiNum}_sequence_${seqNum}_${shotType}_shot_${shtNum}_task_${shotTasks[m].name}`;
                     }
 
-                    let dependencies = shotTasks[k].dependencies.map(dep => {
+                    let dependencies = shotTasks[tskIndex].dependencies.map(dep => {
                         // Resolve dependency using the task name mapping
                         const depName = dep.trim();
                         // Return empty string if dependency not found
@@ -420,16 +425,16 @@ function generateEpisodeActivities(
                             } while (assetDependencies.includes(`asset_${assetType}_${randomAssetIndex}`));
 
                             // Get the asset dependencies specified in the UI
-                            console.log(shotTasks[k]);
-                            let assetDepNames = shotTasks[k].extraDependencies;
+                            console.log(shotTasks[tskIndex]);
+                            let assetDepNames = shotTasks[tskIndex].extraDependencies;
                             console.log(assetDepNames);
                             // Find matching asset tasks
                             assetDepNames.forEach(depName => {
                                 depName = depName.trim();
-                                for (let m = 0; m < assetTypeTasks.length; m++) {
+                                for (let n = 0; n < assetTypeTasks.length; n++) {
                                     // Check if the asset task name is the dependency name
-                                    if (assetTypeTasks[m].name == depName) {
-                                        assetDependencies.push(`asset_${assetType}_${randomAssetIndex}_task_${assetTypeTasks[m].name}`);
+                                    if (assetTypeTasks[n].name == depName) {
+                                        assetDependencies.push(`asset_${assetType}_${randomAssetIndex}_task_${assetTypeTasks[n].name}`);
                                         break; // Move to the next dependency name once a match is found
                                     }
                                 }
@@ -438,13 +443,13 @@ function generateEpisodeActivities(
                     }
 
                     shotTasksWithIds.push({
-                        "id": `episode_${i}_shot_${j}_task_${shotTasks[k].name}`,
-                        "name": shotTasks[k].name,
+                        "id": `episode_${epiNum}_sequence_${seqNum}_${shotType}_shot_${shtNum}_task_${shotTasks[tskIndex].name}`,
+                        "name": shotTasks[tskIndex].name,
                         "task": {
-                            "duration": shotTasks[k].duration,
+                            "duration": shotTasks[tskIndex].duration,
                             "resources": [
                                 {
-                                    "resource": getOsfResourceClass(osf, shotTasks[k].name), 
+                                    "resource": getOsfResourceClass(osf, shotTasks[tskIndex].name), 
                                     "units": 1
                                 }
                             ]
@@ -454,22 +459,22 @@ function generateEpisodeActivities(
                     });
                 }
                 shotActivities.push({
-                    "id": `episode_${i}_shot_${j}`,
-                    "name": `Episode ${i} Shot ${j}`,
+                    "id": `episode_${epiNum}_sequence_${seqNum}_${shotType}_shot_${shtNum}`,
+                    "name": `Episode ${epiNum} Sequence ${seqNum} Shot ${shtNum}`,
                     "category": "Shot",
                     "summary": shotTasksWithIds
                 });
             };
             sequenceActivities.push({
-                "id": `episode_${i}_sequence_${j+1}`,
-                "name": `Episode ${i} ${sequence}`,
+                "id": `episode_${epiNum}_sequence_${seqNum}`,
+                "name": `Episode ${epiNum} ${sequence}`,
                 "category": "Sequence",
                 "summary": shotActivities
             });
         };
         episodeActivities.push({
-            "id": `episode_${i}`,
-            "name": `Episode ${i}`,
+            "id": `episode_${epiNum}`,
+            "name": `Episode ${epiNum}`,
             "category": "Episode",
             "summary": sequenceActivities
         });
