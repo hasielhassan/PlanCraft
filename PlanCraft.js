@@ -224,22 +224,31 @@ function getTablesTasks(className) {
     console.log(allTablesTasks);
     return allTablesTasks
 }
-// Add resources to resourceClasses
-// Keep a global track of added resources
-let resourceClasses = {}; 
-function addResourceClass(taskName) {
-    if (!resourceClasses[taskName]) {
-        const resourceId = `resource_${Object.keys(resourceClasses).length + 1}`;
-        osf.snapshot.resourceClasses.push({
-            "id": resourceId,
-            "name": taskName
-        });
-        resourceClasses[taskName] = resourceId;
-    }
-    return resourceClasses[taskName];
+// Add resources to OSF resourceClasses
+function addResourceClass(osf, taskName) {
+
+    let resourceClass = getOsfResourceClass(osf, taskName);
+    console.log(resourceClass);
+    if (resourceClass) {
+        return resourceClass;
+    }   
+
+    const resourceId = `resource_${osf.snapshot.resourceClasses.length + 1}`;
+    resourceClass = {"id": resourceId,"name": taskName}
+    osf.snapshot.resourceClasses.push(resourceClass);
+    console.log("Created resource class: " + resourceClass);
+
 }
 
-function generateAssetActivities(numEnvAssets, numCharAssets, numPropAssets, assetTasks) {
+function getOsfResourceClass(osf, taskName) {
+    for (let i = 0; i < osf.snapshot.resourceClasses.length; i++) {
+        if (osf.snapshot.resourceClasses[i].name === taskName) {
+            return osf.snapshot.resourceClasses[i].id;
+        }
+    }
+}
+
+function generateAssetActivities(osf, numEnvAssets, numCharAssets, numPropAssets, assetTasks) {
 
     let assetActivities = [];
 
@@ -280,7 +289,7 @@ function generateAssetActivities(numEnvAssets, numCharAssets, numPropAssets, ass
                         "duration": assetTypeTasks[j].duration,
                         "resources": [
                             {
-                                "resource": resourceClasses[assetTypeTasks[j].name], 
+                                "resource": getOsfResourceClass(osf, assetTypeTasks[j].name), 
                                 "units": 1
                             }
                         ]
@@ -307,7 +316,7 @@ function generateAssetActivities(numEnvAssets, numCharAssets, numPropAssets, ass
 }
 
 function generateEpisodeActivities(
-    numEpisodes, shotsPerEpisode, complexShotsPerEpisode, shotTypesTasks,
+    osf, numEpisodes, shotsPerEpisode, complexShotsPerEpisode, shotTypesTasks,
     sequencesPerEpisode, sequenceTasks,
     numEnvAssets, numCharAssets, numPropAssets, assetTasks
 ) {
@@ -435,7 +444,7 @@ function generateEpisodeActivities(
                             "duration": shotTasks[k].duration,
                             "resources": [
                                 {
-                                    "resource": resourceClasses[shotTasks[k].name], 
+                                    "resource": getOsfResourceClass(osf, shotTasks[k].name), 
                                     "units": 1
                                 }
                             ]
@@ -469,9 +478,6 @@ function generateEpisodeActivities(
 }
 
 function generateOSF() {
-
-    // reset resource classes
-    let resourceClasses = {}; 
 
     const numEpisodes = parseInt(document.getElementById("numEpisodes").value);
     const shotsPerEpisode = parseInt(document.getElementById("shotsPerEpisode").value);
@@ -509,19 +515,28 @@ function generateOSF() {
     
     // Generate the resources from task names for each type of the tables
     // considering that the tasks objects are dictionaries of types
-    for (let i = 0; i < assetTasks.length; i++) {
-        assetTasks[i].forEach(task => addResourceClass(task.name));
+    console.log("Generating resource classes...");
+    console.log("assetTasks: " + Object.keys(assetTasks).length);
+    console.log("shotTasks: " + Object.keys(shotTasks).length);
+    console.log("sequenceTasks: " + Object.keys(sequenceTasks).length);
+    for (let i = 0; i < Object.keys(assetTasks).length; i++) {
+        let assetType = Object.keys(assetTasks)[i];
+        assetTasks[assetType].forEach(task => addResourceClass(osf, task.name));
     }
-    for (let i = 0; i < shotTasks.length; i++) {
-        shotTasks[i].forEach(task => addResourceClass(task.name));
+    for (let i = 0; i < Object.keys(shotTasks).length; i++) {
+        let shotType = Object.keys(shotTasks)[i];
+        shotTasks[shotType].forEach(task => addResourceClass(osf, task.name));
     }
-    for (let i = 0; i < sequenceTasks.length; i++) {
-        sequenceTasks[i].forEach(task => addResourceClass(task.name));
+    for (let i = 0; i < Object.keys(sequenceTasks).length; i++) {
+        let sequenceType = Object.keys(sequenceTasks)[i];
+        sequenceTasks[sequenceType].forEach(task => addResourceClass(osf, task.name));
     }
+
+    console.log("resourceClasses: " + osf.snapshot.resourceClasses);
 
     // Generate asset activities
     const assetActivities = generateAssetActivities( 
-        numEnvAssets, numCharAssets, numPropAssets, assetTasks
+        osf, numEnvAssets, numCharAssets, numPropAssets, assetTasks
     );
     osf.snapshot.projects[0].activities.push({
         "id": "assets",
@@ -531,7 +546,7 @@ function generateOSF() {
 
     // Generate episodes shot activities
     const episodeActivities = generateEpisodeActivities(
-        numEpisodes, shotsPerEpisode, complexShotsPerEpisode, shotTasks,
+        osf, numEpisodes, shotsPerEpisode, complexShotsPerEpisode, shotTasks,
         sequencesPerEpisode, sequenceTasks,
         numEnvAssets, numCharAssets, numPropAssets, assetTasks
     );
