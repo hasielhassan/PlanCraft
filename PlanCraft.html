@@ -146,8 +146,8 @@
                         <table id="envAssetTasksTable" class="assets-tasks-table" data-entity-type="env">
                             <thead>
                                 <tr>
-                                    <th>Task Name</th>
-                                    <th>Duration</th>
+                                    <th style="width: 150px;">Task Name</th>
+                                    <th style="width: 80px;">Duration</th>
                                     <th>Dependencies (comma-separated)</th>
                                 </tr>
                             </thead>
@@ -167,8 +167,8 @@
                         <table id="charAssetTasksTable" class="assets-tasks-table" data-entity-type="char">
                             <thead>
                                 <tr>
-                                    <th>Task Name</th>
-                                    <th>Duration</th>
+                                    <th style="width: 150px;">Task Name</th>
+                                    <th style="width: 80px;">Duration</th>
                                     <th>Dependencies (comma-separated)</th>
                                 </tr>
                             </thead>
@@ -188,8 +188,8 @@
                         <table id="propAssetTasksTable" class="assets-tasks-table" data-entity-type="prop">
                             <thead>
                                 <tr>
-                                    <th>Task Name</th>
-                                    <th>Duration</th>
+                                    <th style="width: 150px;">Task Name</th>
+                                    <th style="width: 80px;">Duration</th>
                                     <th>Dependencies (comma-separated)</th>
                                 </tr>
                             </thead>
@@ -211,8 +211,8 @@
                         <table id="sequenceTasksTable" class="sequence-tasks-table" data-entity-type="simple-sequence">
                             <thead>
                                 <tr>
-                                    <th>Task Name</th>
-                                    <th>Duration</th>
+                                    <th style="width: 150px;">Task Name</th>
+                                    <th style="width: 80px;">Duration</th>
                                     <th>Sequence Dependencies</th>
                                     <th>Asset Dependencies</th>
                                 </tr>
@@ -235,10 +235,11 @@
                         <table id="simpleShotTasksTable" class="shots-tasks-table" data-entity-type="simple-shot">
                             <thead>
                                 <tr>
-                                    <th>Task Name</th>
-                                    <th>Duration</th>
+                                    <th style="width: 150px;">Task Name</th>
+                                    <th style="width: 80px;">Duration</th>
                                     <th>Shot Dependencies</th>
                                     <th>Asset Dependencies</th>
+                                    <th>Sequence Dependencies</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -259,10 +260,11 @@
                         <table id="complexShotTasksTable" class="shots-tasks-table" data-entity-type="complex-shot">
                             <thead>
                                 <tr>
-                                    <th>Task Name</th>
-                                    <th>Duration</th>
+                                    <th style="width: 150px;">Task Name</th>
+                                    <th style="width: 80px;">Duration</th>
                                     <th>Shot Dependencies</th>
                                     <th>Asset Dependencies</th>
+                                    <th>Sequence Dependencies</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -279,7 +281,7 @@
                     <input type="number" id="numEpisodes" value="1"><br>
 
                     <label for="sequencesPerEpisode">Number of Sequences per Episode:</label>
-                    <input type="number" id="sequencesPerEpisodes" value="10"><br>
+                    <input type="number" id="sequencesPerEpisode" value="10"><br>
 
                     <label for="shotsPerEpisode">Shots per Episode:</label>
                     <input type="number" id="shotsPerEpisode" value="200"><br>
