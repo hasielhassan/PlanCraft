@@ -1107,6 +1107,55 @@ function convertOSFToGantt(osfData) {
     return { data: tasks, links: links};
 }
 
+//Tabulator Date Editor
+var dateEditor = function(cell, onRendered, success, cancel){
+    //cell - the cell component for the editable cell
+    //onRendered - function to call when the editor has been rendered
+    //success - function to call to pass thesuccessfully updated value to Tabulator
+    //cancel - function to call to abort the edit and return to a normal cell
+
+    //create and style input
+    var cellValue = luxon.DateTime.fromFormat(cell.getValue(), "dd/MM/yyyy").toFormat("yyyy-MM-dd"),
+    input = document.createElement("input");
+
+    input.setAttribute("type", "date");
+
+    input.style.padding = "4px";
+    input.style.width = "100%";
+    input.style.boxSizing = "border-box";
+
+    input.value = cellValue;
+
+    onRendered(function(){
+        input.focus();
+        input.style.height = "100%";
+    });
+
+    function onChange(){
+        if(input.value != cellValue){
+            success(luxon.DateTime.fromFormat(input.value, "yyyy-MM-dd").toFormat("dd/MM/yyyy"));
+        }else{
+            cancel();
+        }
+    }
+
+    //submit new value on blur or change
+    input.addEventListener("blur", onChange);
+
+    //submit new value on enter
+    input.addEventListener("keydown", function(e){
+        if(e.keyCode == 13){
+            onChange();
+        }
+
+        if(e.keyCode == 27){
+            cancel();
+        }
+    });
+
+    return input;
+};
+
 window.onload = (event) => {
     //console.log("page is fully loaded");
 
@@ -1132,7 +1181,6 @@ window.onload = (event) => {
     }
 
     //openTab('generator');
-
     gantt.config.date_format = "%Y-%m-%d";
     gantt.config.scale_unit = 'month';
     gantt.config.view_scale = true;
@@ -1223,5 +1271,43 @@ window.onload = (event) => {
             targetView.style.display = 'block'; 
         });
     });
+
+    sheetData = [];
+
+    var table = new Tabulator("#budget-table", {
+        spreadsheet:true,
+        spreadsheetRows:28,
+        spreadsheetColumns:18,
+        spreadsheetColumnDefinition:{editor:"input"},
+        spreadsheetData:sheetData,
+      
+        rowHeader:{field:"_id", hozAlign:"center", headerSort:false, frozen:true},
+      
+        editorEmptyValue:undefined, //ensure empty values are set to undefined so they arent included in spreadsheet output data
+    });
+
+    document.getElementById("budget-exportCSV").addEventListener(
+        "click", function() {
+            table.download("csv", "plancraft-budget.csv", {delimiter:","});
+        }
+    );
+
+    document.getElementById("budget-exportXLS").addEventListener(
+        "click", function() {
+            table.download("xlsx", "plancraft-budget.xlsx", {
+                sheetName:"PlanCraftBudget",
+                compress:false
+            });
+        }
+    );
+
+    document.getElementById("budget-exportPDF").addEventListener(
+        "click", function() {
+            table.download("pdf", "plancraft-budget.pdf", {
+                orientation:"landscape",
+                title:"PlanCraft Budget",
+            });
+        }
+    );
 
 };
