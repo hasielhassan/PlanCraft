@@ -1157,21 +1157,29 @@ var dateEditor = function(cell, onRendered, success, cancel){
 };
 
 function gaOptout() {
-    document.cookie = 'gaOptout=true; expires=Thu, 31 Dec 2099 23:59:59 UTC; path=/';
-    window['ga-disable-G-F0ZTC6GDXG'] = true; // Replace with your actual ID
+    localStorage.setItem("gaConsent","false")
+    window['ga-disable-G-F0ZTC6GDXG'] = true;
     hideCookieConsent();
     alert('You have been opted out of Google Analytics tracking.');
 }
   
 function acceptCookies() {
-    document.cookie = 'gaConsent=true; expires=Thu, 31 Dec 2099 23:59:59 UTC; path=/';
+    console.log("accepting cookies");
+    localStorage.setItem("gaConsent","true")
     hideCookieConsent();
     // Initialize Google Analytics here (since the user consented)
-    gtag('config', 'G-F0ZTC6GDXG'); // Replace with your actual ID
+    initializeGoogleAnalytics();
 }
   
 function hideCookieConsent() {
     document.getElementById('cookieConsent').style.display = 'none';
+}
+
+function initializeGoogleAnalytics() {
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-F0ZTC6GDXG');
 }
 
 window.onload = (event) => {
@@ -1328,14 +1336,14 @@ window.onload = (event) => {
         }
     );
 
-    if (document.cookie.indexOf('gaConsent=true') == -1) {
+    if (!localStorage.getItem("gaConsent")) {
+        // User has not consented nor denied, show cookie consent dialog
+        console.log("showing cookie consent dialog");
         document.getElementById('cookieConsent').style.display = 'block';
     } else {
         // User has already consented, initialize Google Analytics
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-F0ZTC6GDXG'); // Replace with your actual ID
+        console.log("initializing google analytics");
+        initializeGoogleAnalytics();
     }
 
 
