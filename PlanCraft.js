@@ -1156,6 +1156,24 @@ var dateEditor = function(cell, onRendered, success, cancel){
     return input;
 };
 
+function gaOptout() {
+    document.cookie = 'gaOptout=true; expires=Thu, 31 Dec 2099 23:59:59 UTC; path=/';
+    window['ga-disable-G-F0ZTC6GDXG'] = true; // Replace with your actual ID
+    hideCookieConsent();
+    alert('You have been opted out of Google Analytics tracking.');
+}
+  
+function acceptCookies() {
+    document.cookie = 'gaConsent=true; expires=Thu, 31 Dec 2099 23:59:59 UTC; path=/';
+    hideCookieConsent();
+    // Initialize Google Analytics here (since the user consented)
+    gtag('config', 'G-F0ZTC6GDXG'); // Replace with your actual ID
+}
+  
+function hideCookieConsent() {
+    document.getElementById('cookieConsent').style.display = 'none';
+}
+
 window.onload = (event) => {
     //console.log("page is fully loaded");
 
@@ -1309,5 +1327,16 @@ window.onload = (event) => {
             });
         }
     );
+
+    if (document.cookie.indexOf('gaConsent=true') == -1) {
+        document.getElementById('cookieConsent').style.display = 'block';
+    } else {
+        // User has already consented, initialize Google Analytics
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-F0ZTC6GDXG'); // Replace with your actual ID
+    }
+
 
 };

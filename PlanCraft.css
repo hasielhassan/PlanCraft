@@ -167,3 +167,13 @@ h2 {
     justify-content: space-between;
     align-items: center;
 }
+
+#cookieConsent {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #f5f5f5;
+    padding: 10px 20px;
+    text-align: center;
+}
