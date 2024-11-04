@@ -1210,14 +1210,13 @@ window.onload = (event) => {
     gantt.config.date_format = "%Y-%m-%d";
     gantt.config.scale_unit = 'month';
     gantt.config.view_scale = true;
-    gantt.init("gantt_here");
-    
     gantt.plugins({ 
         drag_timeline: true,
         export_api: true,
         tooltip: true ,
         marker: true,
     }); 
+    gantt.init("gantt_here");
 
     document.getElementById("showHideLinks").addEventListener(
         "click", function() {
@@ -1226,6 +1225,37 @@ window.onload = (event) => {
             this.textContent = gantt.config.show_links ? "Hide links" : "Show links";
         }
     )
+
+    document.getElementById("collapseExpandAll").addEventListener(
+        "click", function() {
+            // check the text of the button
+            if (this.textContent == "Expand All") {
+                var method = "open";
+            } else {
+                var method = "close";
+            }
+
+            gantt.batchUpdate(function () {
+                for(var i = 0; i < gantt.getTaskCount(); i++){
+                    var task = task = gantt.getTaskByIndex(i);
+                    if (method == "open") {
+                        gantt.open(task.id);
+                    } else {
+                        gantt.close(task.id);
+                    }
+                    
+                }
+            });
+
+            // change the button text
+            if (method == "open") {
+                this.textContent = "Collapse All";
+            } else {
+                this.textContent = "Expand All";
+            }
+        }
+    )
+
 
     document.getElementById("exportPDF").addEventListener(
         "click", function() {
