@@ -1039,11 +1039,27 @@ function extractTasks(activity, tasks, links, parent) {
     const task = {
       id: activity.id,
       text: activity.name,
-      start_date: activity.start,
-      end_date: activity.finish,
       parent: parent, // Set the parent ID
       open: true   
     };
+    // check if start and end dates are defined
+    if (activity.start && activity.finish) {
+        task.start_date = activity.start;
+        task.end_date = activity.finish;
+    } else if (activity.hasOwnProperty("task")) {
+        task.duration = activity.task.duration;
+        // set start date as today
+        var today = new Date();
+        task.start_date = today.toISOString();
+    }
+
+    //console.log(activity.hasOwnProperty("task"));
+    if (activity.hasOwnProperty("task")) {
+      //console.log("task is defined, setting duration: " + activity.task.duration);
+      task.duration = activity.task.duration;
+      //console.log(task.duration);
+    }
+    //console.log(task);
 
     if (activity.dependencies) {
       // iterate over dependencies and create links
@@ -1103,6 +1119,8 @@ function convertOSFToGantt(osfData) {
             extractTasks(activity, tasks, links, null);
         });
     });
+
+    //console.log(tasks);
 
     return { data: tasks, links: links};
 }
@@ -1182,6 +1200,143 @@ function initializeGoogleAnalytics() {
     gtag('config', 'G-F0ZTC6GDXG');
 }
 
+// Helper function to format date as "YYYY-MM-DD"
+function formatDate(date) {
+    //console.log(date);
+    // check that the date is an instance of Date
+    if (!(date instanceof Date)) {
+        //console.log("date is not an instance of Date");
+        return date;
+    }
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+// Custom auto-scheduling algorithm
+function autoScheduleGantt(ganttObj, endDate) {
+    // Create a copy of the tasks data for internal calculations
+    const tasks = ganttObj.getTaskBy(function(task) {
+      return true; // retrieve all tasks
+    }).map(task => ({
+      id: task.id,
+      duration: task.duration,
+      start_date: null,
+      end_date: null
+    }));
+  
+    // Create a map of task durations for quick lookups
+    const taskMap = {};
+    tasks.forEach(task => {
+      taskMap[task.id] = task;
+    });
+  
+    // Function to calculate task dates based on links
+    function calculateTaskDates() {
+        // Get existing links in reverse order
+        const links = ganttObj.getLinks().reverse();
+        
+        // Create a map to track calculated end dates for each task
+        const endDates = {};
+  
+        // Process links to establish start and end dates
+        links.forEach(link => {
+            //console.log(link);
+            var sourceTaskId = link.source;
+            var targetTaskId = link.target;
+            //console.log("sourceTaskId:" + sourceTaskId);
+            //console.log("targetTaskId: " + targetTaskId);
+    
+            // Calculate start and end dates for the target task based on the source task
+
+            if (!endDates[targetTaskId]) {
+                // Calculate end start of the target task
+                var targetEndDate = new Date(endDate);
+                var targetDuration = taskMap[targetTaskId].duration;
+                // Calculate startDate in milliseconds
+                var targetStartDate = new Date(targetEndDate.getTime() - targetDuration * 24 * 60 * 60 * 1000); 
+                endDates[targetTaskId] = {
+                    startDate: targetStartDate,
+                    endDate: targetEndDate
+                };
+            } else {
+                // retrieve the calculated start and end dates of the target task
+                var targetStartDate = endDates[targetTaskId].startDate;
+                var targetEndDate = endDates[targetTaskId].endDate;
+            }
+
+            // Calculate start and end dates for the source task based on the target task
+            if (!endDates[sourceTaskId]) {
+                // Subtract 1 day in milliseconds
+                var sourceEndDate = new Date(targetStartDate.getTime() - 1 * 24 * 60 * 60 * 1000);
+                var sourceDuration = taskMap[sourceTaskId].duration;
+                // Calculate startDate in milliseconds
+                var sourceStartDate = new Date(sourceEndDate.getTime() - sourceDuration * 24 * 60 * 60 * 1000);
+                endDates[sourceTaskId] = {
+                    startDate: sourceStartDate,
+                    endDate: sourceEndDate
+                };
+            } else {
+                // retrieve the calculated start and end dates of the source task
+                var sourceStartDate = endDates[sourceTaskId].startDate;
+                var sourceEndDate = endDates[sourceTaskId].endDate;
+            }
+        });
+
+        //console.log(endDates);
+  
+        // Assign calculated dates to tasks
+        Object.keys(endDates).forEach(taskId => {
+            const taskDates = endDates[taskId];
+            const task = taskMap[taskId];
+            task.start_date = taskDates.startDate;
+            task.end_date = taskDates.endDate;
+        });
+    }
+  
+    // Start scheduling from the expected end date of the last task
+    calculateTaskDates();
+
+    // Apply batch updates to Gantt tasks for better performance
+    ganttObj.batchUpdate(() => {
+      tasks.forEach(task => {
+        const ganttTask = ganttObj.getTask(task.id);
+        if (task.start_date) {
+          ganttTask.start_date = task.start_date;
+        } else {
+          ganttTask.start_date = null;
+        }
+        if (task.end_date) {
+          ganttTask.end_date = task.end_date;
+        } else {
+          ganttTask.end_date = null;
+        }
+      });
+    });
+  }
+// Function to open the modal
+function openDateModal() {
+    document.getElementById("ganttEndDateModal").style.display = "flex";
+}
+  
+// Function to close the modal
+function closeDateModal() {
+    document.getElementById("ganttEndDateModal").style.display = "none";
+}
+
+// Function to confirm the selected date and run scheduling
+function confirmDate() {
+    const endDateInput = document.getElementById("endDateInput").value;
+    if (endDateInput) {
+        const selectedEndDate = new Date(endDateInput);
+        closeDateModal();
+        autoScheduleGantt(window.gantt, selectedEndDate);
+    } else {
+        alert("Please select a valid end date.");
+    }
+}
+
 window.onload = (event) => {
     //console.log("page is fully loaded");
 
@@ -1217,6 +1372,7 @@ window.onload = (event) => {
         marker: true,
     }); 
     gantt.init("gantt_here");
+    window.gantt = gantt;
 
     document.getElementById("showHideLinks").addEventListener(
         "click", function() {
@@ -1255,6 +1411,12 @@ window.onload = (event) => {
             }
         }
     )
+
+    document.getElementById("autoSchedule").addEventListener(
+        "click", function() {
+            openDateModal();
+        }
+    );
 
 
     document.getElementById("exportPDF").addEventListener(
