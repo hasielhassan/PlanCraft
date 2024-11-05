@@ -1,54 +1,46 @@
+
 body {
+    margin: 0;
     font-family: 'Roboto', sans-serif;
     background: linear-gradient(to bottom right, #e0ffff, #cce0ff);
-    display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
-    margin: 0;
 }
 
-.container {
+.topnav {
+    overflow: hidden;
+    background-color: #333;
+}
+
+.topnav a {
+    float: left;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 15px;
+    text-decoration: none;
+    font-size: 17px;
+}
+
+.topnav a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+.topnav a.active {
+    background-color: #3883b1;
+    color: white;
+}
+
+.topnav img {
+    vertical-align: middle; 
+}
+
+.view {
+    display: none; 
+    padding: 50px;
     background-color: white;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
-    display: flex;
-    width: 80%;
-    height: 80%;
-    max-width: 1200px;
-    margin: 30px 160px;
-}
-
-.horizontal-layout {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-  
-.horizontal-layout > div {
-    width: 100%;
-}
-  
-#toolbar_here {
-text-align: right;
-}
-
-.form-container {
-    width: 50%;
-    padding-right: 40px;
-}
-
-.description {
-    width: 50%;
-    border-left: 1px solid #ddd; 
-    padding-left: 40px;
-    text-align: justify;
-    line-height: 1.6;
-}
-
-.description h2 {
-    margin-bottom: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 50px;
 }
 
 label {
@@ -65,9 +57,23 @@ input[type="number"], input[type="text"], textarea {
     border: 1px solid #ccc;
 }
 
+.percentage-input-wrapper {
+    /* Required for positioning the pseudo-element */
+    position: relative;
+}
+
+.percentage-input-wrapper::after {
+    content: '%';
+    position: absolute;
+    right: 90%; /* Adjust as needed */
+    top: 30%;
+    transform: translateY(-30%); /* Center vertically */
+    pointer-events: none; /* So the '%' doesn't interfere with the input */
+}
+
 button {
     padding: 10px 20px;
-    background-color: #4CAF50;
+    background-color: #3883b1;
     color: white;
     border: none;
     cursor: pointer;
@@ -92,8 +98,12 @@ button + button {
     margin-left: 10px;
 }
 
+h1 {
+    margin-top: 0px;
+}
+
 h2 {
-    margin-top: 20px;
+    margin-top: 0px;
 }
 
 /* Collapsible form */
@@ -114,7 +124,7 @@ h2 {
     background-color: #ccc;
 }
 
-.content {
+.collapsible_content {
     padding: 0 18px;
     max-height: 0;
     overflow: hidden;
@@ -122,65 +132,48 @@ h2 {
     background-color: #f1f1f1;
 }
 
-.tab-container {
-    width: 100%; /* Or set a specific width */
+* {
+    box-sizing: border-box;
+}
+  
+/* Container for flexboxes */
+.row {
+    display: flex;
+    flex-wrap: wrap;
 }
 
-.tabs {
-    overflow: hidden;
-    border: 1px solid #ccc;
-    background-color: #558598;
-    /* Use flexbox for layout */
+/* Create four equal columns */
+.column {
+    flex: 25%;
+    padding: 20px;
+}
+  
+/* On screens that are 992px wide or less, go from four columns to two columns */
+@media screen and (max-width: 992px) {
+    .column {
+        flex: 50%;
+    }
+}
+
+/* On screens that are 600px wide or less, make the columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 600px) {
+    .row {
+        flex-direction: column;
+    }
+}
+
+.horizontal-layout {
     display: flex;
-    /* Vertically center title and buttons */       
+    justify-content: space-between;
     align-items: center;
 }
 
-.title-container {
-    display: flex;             /* Use flexbox for title and logo */
-    align-items: center;       /* Vertically center title and logo */
-    margin-left: 20px;          /* Add some space to the left */
-}
-  
-.title-container h1 {
-    margin: 0 10px 0 0;         /* Adjust spacing around title */
-}
-  
-.title-container img {
-    height: 30px;              /* Adjust logo height as needed */
-}
-
-.tab {
-    background-color: inherit;
-    float: left;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    padding: 14px 16px;
-    transition: 0.3s;
-    font-size: 17px;
-}
-
-.tab:hover {
-    background-color:   
-    #ddd;
-}
-
-.tab.active {
-    background-color: #ccc;
-}
-
-.tab-content {
-    display: none;
-    padding: 50px 12px;
-    border: 1px solid #ccc;
-    border-top: none;
-}
-
-.tab-generator {
-    padding: 50px 12px;
-}
-
-.tab-gantt {
-    padding: 30px 12px;
+#cookieConsent {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #f5f5f5;
+    padding: 10px 20px;
+    text-align: center;
 }

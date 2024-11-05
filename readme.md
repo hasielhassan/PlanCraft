@@ -8,6 +8,7 @@
     <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/hasielhassan/PlanCraft" />
     <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/hasielhassan/PlanCraft" />
     <img alt="License" src="https://img.shields.io/github/license/hasielhassan/PlanCraft" />
+    <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/hasielhassan/PlanCraft" />
 </p>
 
 **PlanCraft** is a simple and intuitive tool that helps you generate Open Schedule Format (OSF) files for your projects. With PlanCraft, you can easily define your project assumptions, tasks, durations, dependencies, and calendar settings to create a comprehensive schedule in OSF format.
@@ -15,7 +16,7 @@
 ![Screenshot](resources/screenshot.png)
 
 <p align="center">
- <a href="https://www.hasielhassan.com/PlanCraft/PlanCraft.html" target="_blank">
+ <a href="https://www.hasielhassan.com/PlanCraft" target="_blank">
   <img src="resources/play.svg" />
  </a>
 </p>
@@ -39,6 +40,7 @@ create or edit a schedule directly in Flow Generative Scheduling.<br>
 *   **Calendar settings:** Customize your work calendar to match your project's needs.
 *   **OSF generation:** Generate a downloadable OSF JSON file that can be used in scheduling tools.
 * **Gantt Viewer:** Import OSF files, preview, modify and export PDF or Excel files of your schedule.
+* **Budget Spreadsheet**: Import OSF files, create a basic spreadsheet of resources and build a budget.
 
 ## How to use
 
