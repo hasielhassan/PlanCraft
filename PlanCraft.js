@@ -74,9 +74,18 @@ function addShotTask(type="", name="", duration=5, dependencies=[], firstExtraDe
 function addTaskRow(table, type, name="", duration=5, dependencies=[], 
     firstExtraDependencies=[], secondExtraDependencies=[]) {
     const row = table.insertRow(-1);
+    // style the row by setting its class
+    row.className = "bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600";
     const nameCell = row.insertCell();
+    // set cell scope and class
+    nameCell.scope = "col";
+    nameCell.className = "px-6 py-3";
     const durationCell = row.insertCell();
+    durationCell.scope = "col";
+    durationCell.className = "px-6 py-3";
     const shotDependenciesCell = row.insertCell();
+    shotDependenciesCell.scope = "col";
+    shotDependenciesCell.className = "px-6 py-3";
 
     if (!name) {
         name = `Task${type}${table.rows.length}`;
@@ -91,7 +100,7 @@ function addTaskRow(table, type, name="", duration=5, dependencies=[],
     nameCell.innerHTML = `
         <input 
             type="text" 
-            class="taskName" 
+            class="taskName bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
             placeholder="Task Name" 
             value="${name}"
         >
@@ -99,7 +108,7 @@ function addTaskRow(table, type, name="", duration=5, dependencies=[],
     durationCell.innerHTML = `
         <input 
             type="number" 
-            class="taskDuration" 
+            class="taskDuration bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
             placeholder="Days Duration" 
             value="${duration}"
         >
@@ -107,7 +116,7 @@ function addTaskRow(table, type, name="", duration=5, dependencies=[],
     shotDependenciesCell.innerHTML = `
         <input 
             type="text" 
-            class="taskDependencies" 
+            class="taskDependencies bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
             placeholder="comma,separated" 
             value="${dependencies}"
         >
@@ -124,10 +133,12 @@ function addTaskRow(table, type, name="", duration=5, dependencies=[],
         }
 
         const assetDependenciesCell = row.insertCell();
+        assetDependenciesCell.scope = "col";
+        assetDependenciesCell.className = "px-6 py-3";
         assetDependenciesCell.innerHTML = `
             <input 
                 type="text" 
-                class="asetTaskDependencies" 
+                class="asetTaskDependencies bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                 placeholder="comma,separated" 
                 value="${firstExtraDependencies}"
             >
@@ -144,10 +155,12 @@ function addTaskRow(table, type, name="", duration=5, dependencies=[],
         }
 
         const seqDependenciesCell = row.insertCell();
+        seqDependenciesCell.scope = "col";
+        seqDependenciesCell.className = "px-6 py-3";
         seqDependenciesCell.innerHTML = `
             <input 
                 type="text" 
-                class="seqTaskDependencies" 
+                class="seqTaskDependencies bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                 placeholder="comma,separated" 
                 value="${secondExtraDependencies}"
             >
@@ -1190,7 +1203,8 @@ function acceptCookies() {
 }
   
 function hideCookieConsent() {
-    document.getElementById('cookieConsent').style.display = 'none';
+    var modalButton = document.getElementById('cookieConsentToogle');
+    modalButton.click();
 }
 
 function initializeGoogleAnalytics() {
@@ -1317,12 +1331,14 @@ function autoScheduleGantt(ganttObj, endDate) {
   }
 // Function to open the modal
 function openDateModal() {
-    document.getElementById("ganttEndDateModal").style.display = "flex";
+    var modalButton = document.getElementById('ganttEndDateToogle');
+    modalButton.click();
 }
   
 // Function to close the modal
 function closeDateModal() {
-    document.getElementById("ganttEndDateModal").style.display = "none";
+    var modalButton = document.getElementById('ganttEndDateToogle');
+    modalButton.click();
 }
 
 // Function to confirm the selected date and run scheduling
@@ -1363,7 +1379,9 @@ window.onload = (event) => {
 
     //openTab('generator');
     gantt.config.date_format = "%Y-%m-%d";
-    gantt.config.scale_unit = 'month';
+    gantt.config.scales = [
+        {unit: "month", step: 1, format: "%M-%y"},
+    ]
     gantt.config.view_scale = true;
     gantt.plugins({ 
         drag_timeline: true,
@@ -1372,6 +1390,7 @@ window.onload = (event) => {
         marker: true,
     }); 
     gantt.init("gantt_here");
+    //gantt.setSkin("material");
     window.gantt = gantt;
 
     document.getElementById("showHideLinks").addEventListener(
@@ -1463,39 +1482,46 @@ window.onload = (event) => {
         input.click();
     });
 
-    const navLinks = document.querySelectorAll('.topnav a');
-    const views = document.querySelectorAll('.view');
+    // Get references to all sections and navbar links
+    const sections = document.querySelectorAll('.view-section');
+    const navLinks = document.querySelectorAll('nav ul li a');
+
+    // Function to show the corresponding section based on the link clicked
+    function showSection(id) {
+
+        console.log(id);
+
+        // Hide all sections
+        sections.forEach(section => section.classList.add('hidden'));
+
+        // Show the clicked section
+        document.getElementById(id).classList.remove('hidden');
+
+        // Update active state on navbar links
+        var classUnSelected = "block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent outline-none";
+        var classSelected = "block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white md:dark:text-blue-500 outline-none";
+        navLinks.forEach(link => link.className = classUnSelected);
+        document.querySelector(`a[href="#${id}"]`).className = classSelected;
+    }
+
+    // Attach click event listeners to navbar links
     navLinks.forEach(link => {
-        link.addEventListener('click', function(event) {
-            event.preventDefault(); // Prevent default link behavior
-
-            // 1. Remove "active" class from all links
-            navLinks.forEach(navLink => {
-                navLink.classList.remove('active');
-            });
-
-            // 2. Add "active" class to the clicked link
-            this.classList.add('active'); 
-
-            // Hide all views
-            views.forEach(view => {
-                view.style.display = 'none';
-            });
-
-            // Show the corresponding view
-            // Get the href attribute (e.g., "#about")
-            const targetId = this.getAttribute('href');
-            const targetView = document.querySelector(targetId); 
-            targetView.style.display = 'block'; 
+        link.addEventListener('click', (event) => {
+        event.preventDefault(); // Prevent default anchor behavior
+        const targetId = link.getAttribute('href').substring(1); // Get the target section ID
+        showSection(targetId); // Show the selected section
         });
     });
+
+    // Initialize by showing the home section by default
+    showSection('about');
 
     sheetData = [];
 
     var table = new Tabulator("#budget-table", {
         spreadsheet:true,
-        spreadsheetRows:28,
-        spreadsheetColumns:18,
+        spreadsheetRows:25,
+        spreadsheetColumns:15,
         spreadsheetColumnDefinition:{editor:"input"},
         spreadsheetData:sheetData,
       
@@ -1531,7 +1557,9 @@ window.onload = (event) => {
     if (!localStorage.getItem("gaConsent")) {
         // User has not consented nor denied, show cookie consent dialog
         console.log("showing cookie consent dialog");
-        document.getElementById('cookieConsent').style.display = 'block';
+        var modalButton = document.getElementById('cookieConsentToogle');
+        modalButton.click();
+
     } else {
         // User has already consented, initialize Google Analytics
         console.log("initializing google analytics");
