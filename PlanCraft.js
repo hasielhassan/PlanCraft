@@ -1618,7 +1618,7 @@ window.onload = (event) => {
 
     var table = new Tabulator("#budget-table", {
         spreadsheet:true,
-        spreadsheetRows:25,
+        spreadsheetRows:22,
         spreadsheetColumns:15,
         spreadsheetColumnDefinition:{editor:"input"},
         spreadsheetData:sheetData,
