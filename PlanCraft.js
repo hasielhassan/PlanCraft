@@ -1138,6 +1138,77 @@ function convertOSFToGantt(osfData) {
     return { data: tasks, links: links};
 }
 
+
+function convertOSFToBudget(osfData) {
+    // in this function we extract all tasks from the OSF data
+    // then filter only those tasks that are not project ones
+    // then we group them by name, and select the one with the earliest start date
+    // and the one with the latest end date for each group
+    // we then return an array with the result to be used in a tabulator spreadhseet
+    
+    var tasks = [];
+    var links = [];
+    var projects = osfData.snapshot.projects;
+
+    projects.forEach(project => {
+        project.activities.forEach(activity => {
+            extractTasks(activity, tasks, links);
+        });
+    });
+
+    // filter only those tasks that are not project ones
+    tasks = tasks.filter(task => task.type !== gantt.config.types.project);
+
+    //console.log("tasks: ", tasks);
+
+    // group tasks by name
+    var groupedTasks = tasks.reduce((acc, task) => {
+        if (!acc[task.text]) {
+            acc[task.text] = [];
+        }
+        acc[task.text].push(task);
+        return acc;
+    }, {});
+
+    //console.log("groupedTasks: ", groupedTasks);
+
+    // select the one with the earliest start date and the one with the latest end date
+    var result = Object.entries(groupedTasks).map(([name, tasks]) => {
+        var earliestTask = tasks.sort((a, b) => new Date(a.start_date) - new Date(b.start_date))[0];
+        var latestTask = tasks.sort((a, b) => new Date(b.end_date) - new Date(a.end_date))[0];
+        var duration = (new Date(latestTask.end_date) - new Date(earliestTask.start_date)) / (1000 * 60 * 60 * 24);
+
+        // also calculate what is the maximum amount of tasks happening at the same day
+        // for that we check every day from the earliest start date to the latest end date
+        var maxConcurrentTasks = 0;
+        for (var i = 0; i < duration; i++) {
+            var date = new Date(earliestTask.start_date).setDate(new Date(earliestTask.start_date).getDate() + i);
+            var count = tasks.filter(task => new Date(task.start_date).setDate(new Date(task.start_date).getDate()) === date).length;
+            maxConcurrentTasks = Math.max(maxConcurrentTasks, count);
+        }
+
+        return {
+            name,
+            start_date: earliestTask.start_date,
+            end_date: latestTask.end_date,
+            duration: duration,
+            max_concurrent_tasks: maxConcurrentTasks
+        };
+    });     
+
+    //console.log("result: ", result);
+
+    // now build the matrix for the spreadsheet
+    var matrix = [["Department", "Start Date", "End Date", "Duration", "Artist", "Salary", "Total Cost"]];
+    for (var i = 0; i < result.length; i++) {
+        matrix.push(
+            [result[i].name, result[i].start_date, result[i].end_date, result[i].duration, result[i].max_concurrent_tasks, "", ""]
+        );
+    }
+
+    return matrix;
+}
+
 //Tabulator Date Editor
 var dateEditor = function(cell, onRendered, success, cancel){
     //cell - the cell component for the editable cell
@@ -1328,7 +1399,8 @@ function autoScheduleGantt(ganttObj, endDate) {
         }
       });
     });
-  }
+}
+
 // Function to open the modal
 function openDateModal() {
     var modalButton = document.getElementById('ganttEndDateToogle');
@@ -1352,6 +1424,22 @@ function confirmDate() {
         alert("Please select a valid end date.");
     }
 }
+
+
+// Function to open the modal
+function openLoadingModal() {
+    console.log("openLoadingModal");
+    var modalButton = document.getElementById('loadingToogle');
+    modalButton.click();
+}
+  
+// Function to close the modal
+function closeLoadingModal() {
+    console.log("closeLoadingModal");
+    var modalButton = document.getElementById('loadingToogle');
+    modalButton.click();
+}
+
 
 window.onload = (event) => {
     //console.log("page is fully loaded");
@@ -1464,7 +1552,7 @@ window.onload = (event) => {
         input.onchange = function(e) {
           const file = e.target.files[0];
           const reader = new FileReader();
-      
+          openLoadingModal();
           reader.onload = function(e) {
             try {
               const osfData = JSON.parse(e.target.result);
@@ -1472,9 +1560,11 @@ window.onload = (event) => {
               gantt.parse(ganttData);
               gantt.sort("start_date", false);
               gantt.render();
+              closeLoadingModal();
             } catch (error) {
               alert("Error parsing OSF file. Please make sure it's a valid OSF JSON file.");
               console.error(error);
+              closeLoadingModal();
             }
           }
           reader.readAsText(file);
@@ -1521,7 +1611,7 @@ window.onload = (event) => {
     if (window.location.hash) {
         showSection(window.location.hash.substring(1));
     } else {
-        showSection('home');
+        showSection('about');
     }
 
     sheetData = [];
@@ -1534,9 +1624,80 @@ window.onload = (event) => {
         spreadsheetData:sheetData,
       
         rowHeader:{field:"_id", hozAlign:"center", headerSort:false, frozen:true},
-      
-        editorEmptyValue:undefined, //ensure empty values are set to undefined so they arent included in spreadsheet output data
+        
+        //ensure empty values are set to undefined so they arent included in spreadsheet output data
+        editorEmptyValue:undefined, 
+
+        //enable range selection
+        selectableRange:1,
+        selectableRangeColumns:true,
+        selectableRangeRows:true,
+        selectableRangeClearCells:true,
+
+        //configure clipboard to allow copy and paste of range format data
+        clipboard:true,
+        clipboardCopyStyled:false,
+        clipboardCopyConfig:{
+            rowHeaders:false,
+            columnHeaders:false,
+        },
+        clipboardCopyRowRange:"range",
+        clipboardPasteParser:"range",
+        clipboardPasteAction:"range",
+
     });
+
+    document.getElementById("budget-importOSF").addEventListener(
+        "click", function() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json'; // Accept only JSON files
+    
+            input.onchange = function(e) {
+              const file = e.target.files[0];
+              const reader = new FileReader();
+              openLoadingModal();
+              reader.onload = function(e) {
+                try {
+                    
+                    const osfData = JSON.parse(e.target.result);
+                    const budgetData = convertOSFToBudget(osfData);
+                    //console.log(budgetData);
+
+                    budgetData.forEach((rowData, rowIndex) => {
+                        // Retrieve all rows from the table
+                        const rows = table.getRows();
+                        
+                        // Get the specific row using the row index
+                        const row = rows[rowIndex]; // `rowIndex` is already 0-based
+
+                        if (row) {
+                            rowData.forEach((cellData, colIndex) => {
+                                // Convert column index to spreadsheet-style letters (A, B, C, etc.)
+                                const columnName = String.fromCharCode(65 + colIndex); // A=65, B=66, etc.
+
+                                // Get the cell in the specified column
+                                const cell = row.getCell(columnName);
+
+                                if (cell) {
+                                    // Update the cell value
+                                    cell.setValue(cellData);
+                                }
+                            });
+                        }
+                    });
+                    closeLoadingModal();
+                } catch (error) {
+                  alert("Error parsing OSF file. Please make sure it's a valid OSF JSON file.");
+                  console.error(error);
+                  closeLoadingModal();
+                }
+              }
+              reader.readAsText(file);
+            }
+            input.click();
+        }
+    );
 
     document.getElementById("budget-exportCSV").addEventListener(
         "click", function() {
