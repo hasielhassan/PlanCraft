@@ -1502,6 +1502,9 @@ window.onload = (event) => {
         var classSelected = "block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white md:dark:text-blue-500 outline-none";
         navLinks.forEach(link => link.className = classUnSelected);
         document.querySelector(`a[href="#${id}"]`).className = classSelected;
+
+        // Update URL hash
+        window.location.hash = id;
     }
 
     // Attach click event listeners to navbar links
@@ -1514,7 +1517,12 @@ window.onload = (event) => {
     });
 
     // Initialize by showing the home section by default
-    showSection('about');
+    // or the hastag section in the url if defined
+    if (window.location.hash) {
+        showSection(window.location.hash.substring(1));
+    } else {
+        showSection('home');
+    }
 
     sheetData = [];
 
